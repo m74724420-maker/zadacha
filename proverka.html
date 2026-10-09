@@ -1,0 +1,122 @@
+﻿<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Проверка — Логические задачки</title>
+<style>
+body { font-family: Georgia, serif; background: #fdf6e3; color: #3a2d1f;
+       margin: 0; padding: 14px; font-size: 17px; line-height: 1.5; }
+h1 { font-size: 20px; margin: 0 0 4px; }
+p.lead { font-size: 14px; margin: 0 0 14px; }
+div.row { border: 1px solid #d8c9a8; border-left-width: 7px; border-radius: 8px;
+          padding: 9px 11px; margin-bottom: 8px; background: #fff; }
+.ok  { border-left-color: #2f7d32; }
+.bad { border-left-color: #c62828; }
+.mid { border-left-color: #f9a825; }
+b { display: block; font-size: 16px; }
+span.m { font-size: 14px; opacity: .85; display: block; margin-top: 2px; }
+a { color: #7a5c17; }
+</style>
+</head>
+<body>
+<h1>Проверка сайта</h1>
+<p class="lead">Эта страница только смотрит, что не так с телефоном. Ничего не
+ломает и ничего не записывает. Откройте её на том телефоне, где сайт не
+работает, и скажите, какие строки красные.</p>
+
+<div id="out"></div>
+
+<script>
+/* Пишем только самым простым кодом (без стрелок и let/const), чтобы
+   страница работала даже на очень старом браузере. Иначе она сама
+   не запустится и ничего не покажет. */
+(function () {
+  var out = document.getElementById('out');
+  function row(cls, title, msg) {
+    var d = document.createElement('div');
+    d.className = 'row ' + cls;
+    d.innerHTML = '<b>' + title + '</b>' + (msg ? '<span class="m">' + msg + '</span>' : '');
+    out.appendChild(d);
+    return d;
+  }
+  var t0 = new Date().getTime();
+  function ms() { return (new Date().getTime() - t0) + ' мс'; }
+
+  row('ok', '1. Страница открылась', 'за ' + ms());
+
+  /* 2. Работает ли JavaScript — самая частая беда */
+  var jsOk = false;
+  try {
+    var n = 0;
+    var a = [1, 2, 3];
+    for (var i = 0; i < a.length; i++) { n = n + a[i]; }
+    jsOk = (n === 6);
+  } catch (e) { jsOk = false; }
+  row(jsOk ? 'ok' : 'bad', '2. JavaScript работает',
+      jsOk ? 'Проверка прошла' : 'НЕ РАБОТАЕТ — в этом и причина');
+
+  /* 3. Понимает ли браузер новый код (если нет, сайт молча сломается) */
+  var modern = [];
+  var t;
+  try { eval('(async function(){})'); modern.push('async: да'); } catch (e) { modern.push('async: НЕТ'); }
+  try { eval('const z=1'); modern.push('const: да'); } catch (e) { modern.push('const: НЕТ'); }
+  try { eval('(x=>x)'); modern.push('стрелки: да'); } catch (e) { modern.push('стрелки: НЕТ'); }
+  try { eval('for (const q of [1]) {}'); modern.push('for..of: да'); } catch (e) { modern.push('for..of: НЕТ'); }
+  var allModern = (modern.join(' ').indexOf('НЕТ') < 0);
+  row(allModern ? 'ok' : 'mid', '3. Браузер новый?', modern.join(' · '));
+
+  /* 4. Есть ли интернет до сайта.
+     Проверяем обычным fetch, а не картинкой: картинка может не показаться
+     по разным причинам, и проверка врала бы. */
+  var net = row('mid', '4. Проверяем интернет', 'ждём...');
+  var x = new XMLHttpRequest();
+  x.open('GET', 'style.css?proverka=' + (new Date().getTime()), true);
+  x.onload = function () {
+    net.className = 'row ok';
+    net.innerHTML = '<b>4. Интернет есть</b><span class="m">файл с сайта пришёл, код ' + x.status + ', за ' + ms() + '</span>';
+  };
+  x.onerror = function () {
+    net.className = 'row bad';
+    net.innerHTML = '<b>4. Интернет НЕ работает</b><span class="m">файл с сайта не пришёл — браузер не может связаться с сайтом</span>';
+  };
+  x.send();
+  /* 5. Основной скрипт сайта — грузится ли он */
+  var s = document.createElement('script');
+  s.onload = function () { row('ok', '5. app.js загрузился', 'за ' + ms()); };
+  s.onerror = function () { row('bad', '5. app.js НЕ загрузился', 'главный файл сайта не пришёл'); };
+  s.src = 'app.js?proverka=' + (new Date().getTime());
+
+  /* Ловим ошибки скриптов — из-за них сайт может молча сломаться. */
+  window.onerror = function (msg, url, line) {
+    var r = document.querySelectorAll('#out .row');
+    var last = r[r.length - 1];
+    if (last && last.className.indexOf('bad') < 0) {
+      var e = document.createElement('div');
+      e.className = 'row bad';
+      e.innerHTML = '<b>Найдена ошибка в скрипте</b><span class="m">' + msg + ' (файл ' + String(url).split('/').pop() + ', строка ' + line + ')</span>';
+      out.appendChild(e);
+    }
+    return true;
+  };
+  /* 5. Главный файл сайта — тот самый, который всё запускает.
+     Если он не загрузится, сайт будет пустым. Проверяем здесь же,
+     в этой же строке, чтобы результат не потерялся. */
+  var appRow = row('mid', '5. Главный файл сайта', 'проверяем...');
+  var sc = document.createElement('script');
+  sc.onload = function () {
+    appRow.className = 'row ok';
+    appRow.innerHTML = '<b>5. Главный файл загрузился</b><span class="m">за ' + ms() + ' — значит, сайт должен работать</span>';
+  };
+  sc.onerror = function () {
+    appRow.className = 'row bad';
+    appRow.innerHTML = '<b>5. Главный файл НЕ загрузился</b><span class="m">app.js не пришёл — вот и причина пустого экрана</span>';
+  };
+  sc.src = 'app.js?proverka=' + (new Date().getTime());
+  document.body.appendChild(sc);
+
+  row('mid', 'Подождите 10 секунд', 'потом сфотографируйте страницу целиком');
+})();
+</script>
+</body>
+</html>
