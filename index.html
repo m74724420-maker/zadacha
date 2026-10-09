@@ -1,0 +1,493 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Логические задачки</title>
+<meta name="description" content="Логические задачки разных уровней сложности с разбором решения. Тренировка для ума в любом возрасте.">
+<meta name="theme-color" content="#f7d774">
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🧩</text></svg>">
+<!-- Шрифты лежат рядом с сайтом, в папке fonts: они больше не берутся
+     из Google, потому что в России тот отвечал очень долго и телефон
+     висел на полоске загрузки.
+     Подключаем их НЕБЛОКИРУЮЩЕ (media="print" плюс onload): браузер
+     сначала рисует страницу обычным шрифтом, а свои буквы подставляет,
+     когда они придут. Так медленный интернет не может задержать
+     появление сайта. Без media и onload любой недоступный файл шрифта
+     снова остановит загрузку, поэтому так делать нельзя. -->
+<link rel="stylesheet" href="fonts.css?v=154"
+      media="print" onload="this.media='all';this.onload=null">
+<style>
+/* Первая запись страницы прямо в HTML.
+   Зачем: файл style.css подключается сверху и браузер НЕ рисует
+   страницу, пока он не пришёл. Если этот файл зависнет (медленная
+   сеть, телефон) — человек видит пустой экран без единой ошибки.
+   На старых телефонах так и выходило.
+   Теперь основные стили лежат здесь, в самой странице: она показывается
+   сразу и всегда. А style.css добавляется сверху уже потом, поверх —
+   он нужен для украшений, но без него страница всё равно читаема. */
+html { background: #fdf6e3; }
+body {
+  margin: 0;
+  background: #fdf6e3;
+  color: #3a2d1f;
+  font-family: Georgia, "Times New Roman", serif;
+  line-height: 1.5;
+  text-align: center;
+}
+.screen {
+  min-height: 100vh;
+  padding: 24px 16px;
+  display: block;
+}
+.screen[hidden] { display: none; }
+.start-inner { max-width: 640px; margin: 0 auto; }
+.start-greeting {
+  font-size: 1.9rem;
+  margin: 12px 0 4px;
+  color: #7a5c17;
+}
+.start-title { font-size: 1.4rem; margin: 0 0 6px; }
+.start-caption { font-size: 1rem; margin: 0 0 18px; }
+.big-btn {
+  font: inherit;
+  font-size: 1.2rem;
+  padding: 14px 26px;
+  border: 2px solid #7a5c17;
+  border-radius: 12px;
+  background: #f2d68a;
+  color: #3a2d1f;
+  cursor: pointer;
+}
+.sheet {
+  max-width: 640px;
+  margin: 0 auto;
+  text-align: left;
+  background: #fffdf6;
+  border: 2px solid #d8c9a8;
+  border-radius: 12px;
+  padding: 20px;
+}
+.sheet-title { margin-top: 0; font-size: 1.5rem; }
+button { min-height: 44px; }
+
+/* Атрибут hidden должен прятать экран и в том случае, если style.css
+   не пришёл. Без этого правила встроенные стили показывали все экраны
+   разом, и кнопка «Начать» оказывалась размером ноль. */
+[hidden] { display: none !important; }
+
+/* Пейзаж рисуем сразу своим, не дожидаясь интернета. Если картинка
+   из Википедии дойдёт позже, скрипт её подставит. Так стартовый экран
+   никогда не остаётся пустым.
+   Высота здесь указана нарочно: без неё, если файл style.css не пришёл,
+   блок фото схлопывался в ноль и пейзажа не было видно совсем. */
+#startPhoto {
+  background-image: linear-gradient(180deg,#bfe3f2 0%,#e8f2f7 45%,#f7e6b8 100%);
+  background-size: cover;
+  background-position: center;
+  min-height: 42vh;
+}
+.start-photo { min-height: 42vh; }
+.start-greeting { font-size: 1.9rem; margin: 12px 0 4px; color: #7a5c17; }
+.start-photo {
+  width: 100%;
+  border-radius: 10px;
+  overflow: hidden;
+}
+</style>
+
+<!-- Если скрипты не запустились (старый телефон, очень слабая сеть),
+     показываем экран согласия вручную. Раньше здесь был обработчик
+     кнопки «Начать», но отдельного стартового экрана больше нет:
+     человек сразу попадает на экран с политикой, где одна кнопка
+     «Начать решать» и ничего лишнего. -->
+<script>
+(function () {
+  function showAgree() {
+    var ids = ['screenStart', 'screenAgree', 'screenNew', 'screenMain',
+               'screenGame', 'screenProfile', 'screenTasks'];
+    for (var i = 0; i < ids.length; i++) {
+      var el = document.getElementById(ids[i]);
+      if (el) el.hidden = (ids[i] !== 'screenAgree');
+    }
+    var nav = document.getElementById('bottomNav');
+    if (nav) nav.hidden = true;
+  }
+  function check() {
+    /* если через две секунды экран согласия всё ещё не показан —
+       значит, скрипты не работают. Показываем его вручную,
+       чтобы человек не сидел перед пустым экраном. */
+    setTimeout(function () {
+      var a = document.getElementById('screenAgree');
+      if (a && a.hidden) showAgree();
+    }, 2000);
+  }
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', check);
+  } else {
+    check();
+  }
+})();
+</script>
+<!-- Основные стили лежат выше, в самой странице, поэтому она показывается
+     сразу и всегда. Этот файл добавляется сверху, уже после показа,
+     для украшений: если он не придёт, страница всё равно будет видна
+     и читаема. Раньше он подключался сверху, и телефон показывал
+     пустой экран без единой ошибки, пока файл не приходил. -->
+<link rel="stylesheet" href="style.css?v=154"
+      media="print" onload="this.media='all';this.onload=null">
+<noscript><link rel="stylesheet" href="style.css?v=154"></noscript>
+
+<!-- Если скрипты не запустились (старый телефон, очень слабая сеть),
+     посетитель увидит эту подсказку, а не пустую страницу. -->
+<noscript>
+  <div style="position:fixed;inset:0;z-index:9999;background:#fdf6e3;color:#3a2d1f;
+              font-family:Georgia,serif;font-size:20px;line-height:1.5;
+              display:flex;align-items:center;justify-content:center;
+              text-align:center;padding:24px;box-sizing:border-box;">
+    <div>
+      <p style="font-size:28px;font-weight:bold;margin:0 0 16px;">Логические задачки</p>
+      <p>Сайт не смог запустить свои скрипты.</p>
+      <p>Обновите страницу или откройте её заново.</p>
+      <p style="margin-top:20px;font-size:17px;">
+        Если так вышло несколько раз, попробуйте другой браузер
+        или отключите «экономию трафика» в его настройках.
+      </p>
+    </div>
+  </div>
+</noscript>
+</head>
+<body data-theme="yellow">
+
+<!-- ============ СТАРТОВЫЙ ЭКРАН ============ -->
+<section id="screenStart" class="screen start" hidden>
+  <div class="start-photo">
+    <div class="start-photo-img" id="startPhoto"></div>
+    <div class="start-shade"></div>
+    <div class="start-place" id="startPlace">Рисую пейзаж…</div>
+  </div>
+  <div class="start-inner">
+    <h1 class="start-greeting" id="startGreeting">Здравствуйте!</h1>
+    <p class="start-title">Логические задачки</p>
+    <p class="start-caption" id="startCaption"></p>
+    <button class="big-btn" id="startBtn">Начать</button>
+  </div>
+</section>
+
+<!-- ============ СОГЛАСИЕ С ПОЛИТИКОЙ (при первом заходе) ============ -->
+<section id="screenAgree" class="screen paper-screen" hidden>
+  <div class="agree-photo">
+    <div class="start-photo-img" id="startPhoto"></div>
+    <div class="start-shade"></div>
+    <div class="start-place" id="startPlace"></div>
+  </div>
+  <div class="sheet">
+    <h1 class="agree-title" id="startGreeting">Здравствуйте, дорогие друзья!</h1>
+    <p class="agree-sub">Логические задачки. Не торопитесь — мозг любит думать без спешки.</p>
+    <h2 class="sheet-title">Политика конфиденциальности</h2>
+    <p class="sheet-lead">
+      Сайт не запрашивает и не хранит персональные данные: имя, фотографии
+      и точный возраст. В публичном рейтинге видны только вымышленное имя,
+      рисованная аватарка и число решённых задач; история занятий и
+      настройки хранятся исключительно на вашем устройстве.
+    </p>
+    <button class="big-btn" id="agreeBtn">Начать решать</button>
+    <p class="sheet-lead" style="text-align:center;margin-top:.9rem">
+      Нажимая кнопку, вы принимаете эту политику и соглашаетесь, что
+      в общем списке будут видны придуманное имя, картинка и число
+      решённых задач.
+    </p>
+  </div>
+</section>
+
+<!-- ============ СОЗДАНИЕ ПРОФИЛЯ ============ -->
+<section id="screenNew" class="screen paper-screen" hidden>
+  <div class="sheet">
+    <h2 class="sheet-title" id="newTitle">Придумайте себе имя</h2>
+    <p class="sheet-lead" id="newLead">Можно взять имя, которое выберет система, или написать своё. Сайт запомнит вас.</p>
+
+    <div class="avatar-row">
+      <div class="avatar-big" id="avatarPreview">🌸</div>
+      <div class="avatar-side">
+        <div class="avatar-name" id="avatarNamePreview">Новый друг</div>
+        <button class="link-btn" id="avatarRandom">Придумать другое имя</button>
+      </div>
+    </div>
+    <p class="small-note" style="text-align:center;margin:.2rem 0 .6rem">
+      Имя придумывает сайт — настоящее писать не нужно. В общем списке
+      видно только это доброе имя и картинку.
+    </p>
+
+    <p class="form-cap">Кто вы?</p>
+    <div class="pick-row" id="genderRow">
+      <button class="pick-btn" data-gender="f">Женщина</button>
+      <button class="pick-btn" data-gender="m">Мужчина</button>
+    </div>
+
+    <p class="form-cap">Сколько вам лет?</p>
+    <div class="pick-row" id="ageRow">
+      <button class="pick-btn" data-age="50">50–59</button>
+      <button class="pick-btn" data-age="60">60–69</button>
+      <button class="pick-btn" data-age="70">70–79</button>
+      <button class="pick-btn" data-age="80">80 и старше</button>
+    </div>
+
+    <p class="form-cap">Выберите картинку</p>
+    <div class="pick-grid" id="avatarRow"></div>
+
+    <button class="big-btn" id="saveProfileBtn" style="margin-top:1rem">Начать заниматься</button>
+    <p class="small-note" style="text-align:center"><button class="link-btn" id="newCancelBtn" hidden>Отмена</button></p>
+  </div>
+</section>
+
+<!-- ============ ГЛАВНЫЙ ЭКРАН ============ -->
+<section id="screenMain" class="screen main-screen" hidden>
+  <div class="main-bg" id="mainBg" aria-hidden="true"></div>
+  <div class="main-inner">
+  <header class="main-head">
+    <h1 class="main-title">Логические задачки</h1>
+    <p class="main-hello" id="mainHello"></p>
+  </header>
+
+  <div class="menu" id="taskMenu">
+    <!-- карточки задач добавляются скриптом -->
+  </div>
+
+  <footer class="main-footer">
+    <h3>Политика конфиденциальности</h3>
+    <p>Сайт не запрашивает и не хранит персональные данные: имя, фотографии и точный возраст. В публичном рейтинге отображаются только вымышленное имя, рисованная аватарка и количество решённых задач. История занятий, оценки и настройки хранятся исключительно на вашем устройстве. Кнопка «Удалить профиль» в настройках безвозвратно удаляет все данные, включая запись из рейтинга.</p>
+    <p class="main-footer-small">Продолжая работу с сайтом, вы принимаете эти условия.</p>
+  </footer>
+  </div>
+</section>
+
+<!-- ============ ИГРА ============ -->
+<section id="screenGame" class="screen game-screen" hidden>
+  <div class="game-bg" id="gameBg" aria-hidden="true"></div>
+  <header class="game-head">
+    <button class="back-btn" id="backBtn">← Назад</button>
+    <div class="game-head-text">
+      <h2 class="game-title" id="gameTitle">Задача</h2>
+      <p class="game-level" id="gameLevel"></p>
+    </div>
+    <div class="font-tools">
+      <button class="link-btn font-plus" id="fontMinusBtn" title="Сделать шрифт мельче">🔎 Уменьшить</button>
+      <button class="link-btn font-plus" id="fontPlusBtn" title="Сделать шрифт крупнее">🔍 Увеличить</button>
+    </div>
+  </header>
+
+  <div class="sheet game-sheet">
+    <p class="task-question" id="gameQuestion"></p>
+
+    <!-- поле для обычного ответа -->
+    <div id="answerArea" class="answer-area">
+      <label class="field">
+        <span>Ваш ответ</span>
+        <input type="text" id="answerInput" inputmode="numeric" autocomplete="off" placeholder="Впишите число">
+      </label>
+      <button class="big-btn small-btn" id="checkBtn">Проверить</button>
+    </div>
+
+    <!-- судоку -->
+    <div id="sudokuArea" class="sudoku-area" hidden></div>
+
+    <!-- сапёр -->
+    <div id="minesArea" class="mines-area" hidden></div>
+
+    <!-- ФРАНЦУЗСКИЙ: свой экран со словарём, сценками и паспортом -->
+    <div id="frArea" class="fr-area" hidden></div>
+
+    <!-- спички -->
+    <div id="matchArea" class="match-area" hidden></div>
+
+    <!-- шахматы -->
+    <div id="chessArea" class="chess-area" hidden></div>
+    <div class="chess-score" id="chessScore"></div>
+    <div class="chess-btns" id="chessBtns"></div>
+    <div id="chessStyles" class="chess-styles"></div>
+
+    <!-- Сообщение о результате стоит ОТДЕЛЬНО, а не внутри блока с полем
+         ответа. Тот блок прячется для шахмат, сапёра, судоку и спичек,
+         и сообщение о мате или победе уезжало вместе с ним в невидимую
+         область: текст появлялся, а человек ничего не видел. -->
+    <div class="result" id="resultBox" hidden></div>
+
+    <div class="game-actions">
+      <button class="link-btn" id="hintBtn" hidden>Подсказка</button>
+      <button class="link-btn" id="howBtn">Как это решать?</button>
+      <button class="link-btn" id="solutionBtn">Показать решение</button>
+      <button class="link-btn" id="anotherBtn">Другая задача этого уровня</button>
+    </div>
+
+    <div class="solution" id="howBox" hidden>
+      <h3>Как это решать</h3>
+      <div id="howText"></div>
+    </div>
+
+    <div class="solution" id="solutionBox" hidden>
+      <h3>Разбор</h3>
+      <ol id="solutionSteps"></ol>
+      <p class="solution-answer">Ответ: <b id="solutionAnswer"></b></p>
+    </div>
+  </div>
+</section>
+
+<!-- ============ ПРОФИЛЬ ============ -->
+<section id="screenProfile" class="screen paper-screen" hidden>
+  <div class="sheet">
+    <button class="back-btn" id="profileBack">← Назад</button>
+
+    <div class="profile-head">
+      <div class="profile-avatar" id="profileAvatar">🙂</div>
+      <div>
+        <h2 class="profile-name" id="profileName"></h2>
+        <p class="profile-year" id="profileYear"></p>
+      </div>
+    </div>
+
+    <div class="stat-row">
+      <div class="stat">
+        <div class="stat-num" id="statSolved">0</div>
+        <div class="stat-cap">решено задач</div>
+      </div>
+      <div class="stat">
+        <div class="stat-num" id="statRate">0</div>
+        <div class="stat-cap">средний уровень</div>
+      </div>
+      <div class="stat">
+        <div class="stat-num" id="statPlace">—</div>
+        <div class="stat-cap">место в рейтинге</div>
+      </div>
+    </div>
+
+    <div class="settings-row">
+      <button class="link-btn" id="editProfileBtn">Изменить картинку, имя, пол и возраст</button>
+    </div>
+
+    <h3 class="sheet-sub">Рейтинг</h3>
+    <p class="small-note" id="ratingNote">Считаем места по числу решённых задач. Всего 50 мест.</p>
+    <div class="rating-list" id="ratingList"></div>
+
+    <h3 class="sheet-sub">Посещения сайта</h3>
+    <div class="stat-row">
+      <div class="stat">
+        <div class="stat-num" id="statDay">—</div>
+        <div class="stat-cap">заходили сегодня</div>
+      </div>
+      <div class="stat">
+        <div class="stat-num" id="statWeek">—</div>
+        <div class="stat-cap">за неделю</div>
+      </div>
+      <div class="stat">
+        <div class="stat-num" id="statMonth">—</div>
+        <div class="stat-cap">за месяц</div>
+      </div>
+    </div>
+    <p class="small-note" id="dbNote"></p>
+    <div class="settings-row">
+      <button class="link-btn" id="refreshStatsBtn">Обновить статистику</button>
+    </div>
+
+    <h3 class="sheet-sub">Как пользоваться сайтом</h3>
+    <div class="help-list" id="helpList"></div>
+
+    <h3 class="sheet-sub">Настройки</h3>
+    <div class="theme-row" id="themeRow"></div>
+    <label class="field">
+      <span>Размер шрифта: <span id="fsVal">20</span></span>
+      <input type="range" id="fsRange" min="17" max="30" step="1" value="20">
+    </label>
+    <div class="settings-row">
+      <button class="link-btn" id="soundToggleBtn">Звуки: включены</button>
+      <button class="link-btn" id="soundTestBtn">Проверить звук</button>
+    </div>
+    <div class="settings-row">
+      <button class="link-btn" id="melodyBtn">Мелодия при успехе: <span id="melodyName">—</span></button>
+    </div>
+
+    <h3 class="sheet-sub">Политика конфиденциальности</h3>
+    <p class="small-note" style="margin:.2rem 0 .5rem">
+      Сайт не запрашивает и не хранит персональные данные: имя, фотографии
+      и точный возраст. В публичном рейтинге видны только вымышленное имя,
+      рисованная аватарка и число решённых задач; история занятий и
+      настройки хранятся исключительно на вашем устройстве. Кнопка
+      «Удалить профиль» безвозвратно удаляет все данные, включая запись
+      из рейтинга.
+    </p>
+
+    <div class="settings-row profile-bottom">
+      <button class="link-btn danger" id="resetProfileBtn">Сменить пользователя</button>
+      <button class="link-btn danger" id="deleteProfileBtn">Удалить профиль</button>
+    </div>
+  </div>
+</section>
+
+<!-- ============ ПАПКА «МОИ ЗАДАЧИ» ============ -->
+<section id="screenTasks" class="screen paper-screen" hidden>
+  <div class="sheet">
+    <button class="back-btn" id="tasksBack">← Назад</button>
+
+    <h2 class="sheet-title" style="margin-top:.6rem">Мои задачи</h2>
+    <p class="sheet-lead" id="tasksLead">Здесь лежат все решённые задачи. Их можно открыть и пройти заново.</p>
+
+    <div class="filter-row" id="tasksFilter"></div>
+    <div class="solved-list" id="tasksList"></div>
+  </div>
+</section>
+
+<!-- ============ НИЖНЯЯ ПАНЕЛЬ ============ -->
+<nav class="bottom-nav" id="bottomNav" hidden>
+  <button class="nav-item" id="navTasks">
+    <span class="nav-ico">🧩</span>
+    <span class="nav-cap">Задачи</span>
+  </button>
+  <button class="nav-item" id="navMyTasks">
+    <span class="nav-ico">📁</span>
+    <span class="nav-cap">Мои задачи</span>
+  </button>
+  <button class="nav-item nav-avatar" id="navProfile">
+    <span class="nav-avatar-img" id="navAvatar">🙂</span>
+    <span class="nav-cap">Профиль</span>
+  </button>
+</nav>
+
+<!-- ============ ОТДЫХ ДЛЯ ГЛАЗ ============ -->
+<div class="rest" id="restOverlay" hidden>
+  <div class="rest-card">
+    <div class="rest-ico">👀</div>
+    <h2>Дайте вашим глазам отдохнуть</h2>
+    <p class="rest-text">Глаза устали от экрана и начинают думать медленнее.<br>
+      Посмотрите вдаль — на окно, на небо, на далёкий предмет — одну-две минуты.<br>
+      А можете продолжить и сейчас.</p>
+    <div class="rest-actions">
+      <button class="big-btn" id="restSkip">Продолжить</button>
+      <button class="big-btn small-btn" id="restLater">Отдохнуть</button>
+    </div>
+  </div>
+</div>
+
+<div class="toast" id="toast" hidden></div>
+
+<!-- ============ ОКНО ПОДТВЕРЖДЕНИЯ ============ -->
+<div class="ask" id="askBox" hidden>
+  <div class="ask-card">
+    <h2 class="ask-title" id="askTitle">Удалить профиль?</h2>
+    <p class="ask-text" id="askText"></p>
+    <div class="ask-row">
+      <button class="big-btn small-btn" id="askYes">Да</button>
+      <button class="big-btn small-btn ask-no" id="askNo">Нет</button>
+    </div>
+  </div>
+</div>
+
+<script src="fr_words.js?v=154"></script>
+<script src="fr_ui.js?v=154"></script>
+<script src="chess.min.js?v=154"></script>
+<script src="chess_tasks.js?v=154"></script>
+<script src="chess_bank.js?v=154"></script>
+<script src="chess_ui.js?v=154"></script>
+<script src="games.js?v=154"></script>
+<script src="db.js?v=154"></script>
+<script src="app.js?v=154"></script>
+</body>
+</html>
