@@ -1005,6 +1005,33 @@ function renderMenu() {
   menu.querySelectorAll('.level-btn').forEach(b => {
     b.addEventListener('click', () => openTask(b.dataset.kind, Number(b.dataset.level)));
   });
+
+  /* Французский — отдельная карточка: тут не три уровня, а
+     путешествие по Франции, поэтому и кнопка одна. */
+  const frCard = document.createElement('div');
+  frCard.className = 'task-card task-card-fr';
+  frCard.innerHTML = '<h3>🇫🇷 Французский язык</h3>' +
+    '<p class="task-hint">Путешествие по Франции: новые слова, живые сценки и печать в паспорте</p>' +
+    frProgressLine() +
+    '<div class="level-row"><button class="level-btn fr-open-btn" data-fr="1">Продолжить</button></div>';
+  menu.appendChild(frCard);
+  const frBtn = frCard.querySelector('.fr-open-btn');
+  if (frBtn) frBtn.addEventListener('click', function () { frOpen(); });
+}
+
+/* Подсказка о прогрессе французского — одной строкой, без давления. */
+function frProgressLine() {
+  if (typeof FR === 'undefined') return '';
+  let done = 0, total = 0;
+  try {
+    const p = JSON.parse(localStorage.getItem('fr_progress')) || { done: {} };
+    FR.places.forEach(function (pl) {
+      total += pl.days;
+      for (let l = 0; l < pl.days; l++) if (p.done && p.done[pl.code + '-' + l]) done++;
+    });
+  } catch (e) { }
+  if (!done) return '<p class="task-hint">Ещё не начато. Один урок — десять минут.</p>';
+  return '<p class="task-hint">Пройдено ' + done + ' из ' + total + ' уроков</p>';
 }
 
 function updateNav() {
@@ -1024,6 +1051,31 @@ document.getElementById('navProfile').addEventListener('click', () => {
 /* ---------------- ЗАДАНИЕ ---------------- */
 function openTask(kind, level, preset) {
   hideAllGameAreas();
+
+  /* Убираем «тени» спичек, если бабушка сменила задачу, не отпустив
+     спичку. Тень живёт в body, а поле перерисовывается, поэтому
+     без этой уборки на экране оставалась клонированная спичка. */
+  matchDrag = null;
+  document.querySelectorAll('.match-ghost').forEach(function (g) {
+    if (g.parentNode) g.parentNode.removeChild(g);
+  });
+  document.querySelectorAll('.seg.moving, .seg.drop-ok').forEach(function (s) {
+    s.classList.remove('moving', 'drop-ok');
+  });
+
+  /* Возвращаем на место кнопки задач. Их прятал раздел французского
+     (frOpen), и без этого возврата обычные задачи остались бы без
+     подсказок и без «Как это решать?». */
+  ['hintBtn', 'howBtn', 'solutionBtn', 'anotherBtn',
+   'chessBtns', 'chessStyles', 'chessScore'].forEach(function (id) {
+    const el = document.getElementById(id);
+    if (el && el.dataset && el.dataset.frHidden === '1') {
+      delete el.dataset.frHidden;
+      el.hidden = (id === 'chessScore' || id === 'chessStyles' ||
+                   id === 'chessBtns' || id === 'hintBtn');
+    }
+  });
+
   loadGamePhoto();
   /* убираем «числовую» строку от предыдущей задачи, если она была */
   const oldSeqLine = document.querySelector('.seq-line');
@@ -1771,6 +1823,7 @@ function renderMatch(task) {
    Слушатели цепляются один раз, а задачу берём текущую — иначе при
    переходе к новой задаче старые обработчики мешали бы друг другу. */
 let matchDrag = null;
+let matchFinishGlobal = false;   /* один раз настроили глобальные слушатели */
 let matchDragBound = false;
 
 function setupMatchDrag() {
@@ -1794,6 +1847,8 @@ function setupMatchDrag() {
       from: { part: t.dataset.part, pos: Number(t.dataset.pos), seg: t.dataset.seg },
       lit: lit,
       moved: false,
+      startX: e.clientX, startY: e.clientY,   /* откуда нажали: нужно, чтобы
+                                                 отличить нажатие от перетаскивания */
       ghost: null,
       over: null
     };
@@ -1815,7 +1870,17 @@ function setupMatchDrag() {
 
   area.addEventListener('pointermove', function (e) {
     if (!matchDrag) return;
-    matchDrag.moved = true;
+    /* Палец всегда чуть дрожит при нажатии. Раньше любой, даже самый
+       крошечный сдвиг считался переносом: простое нажатие на зажжённую
+       спичку ничего не делало, а тень успевала мелькнуть и иногда
+       оставалась на экране клонированной спичкой. Сдвиг меньше
+       7 пикселей считаем обычным нажатием. */
+    if (!matchDrag.moved) {
+      const dx = e.clientX - matchDrag.startX;
+      const dy = e.clientY - matchDrag.startY;
+      if (Math.abs(dx) < 7 && Math.abs(dy) < 7) return;
+      matchDrag.moved = true;
+    }
     if (matchDrag.ghost) {
       matchDrag.ghost.style.left = (e.clientX - matchDrag.ghost.offsetWidth / 2) + 'px';
       matchDrag.ghost.style.top = (e.clientY - matchDrag.ghost.offsetHeight / 2) + 'px';
@@ -1833,16 +1898,22 @@ function setupMatchDrag() {
 
   const finish = function () {
     if (!matchDrag) return;
-    const task = state.task;
-    if (!task || task.kind !== 'matchsticks') { matchDrag = null; return; }
     const d = matchDrag;
     matchDrag = null;
+    /* Убираем «тень» ВСЕГДА, даже если задача уже сменилась.
+       Раньше был ранний выход, и тень оставалась на экране — бабушка
+       видела вторую, клонированную спичку, которую нельзя было убрать.
+       Поэтому чистим здесь же, до любых проверок. */
     if (d.ghost && d.ghost.parentNode) d.ghost.parentNode.removeChild(d.ghost);
     if (d.over) d.over.classList.remove('drop-ok');
-    const src = document.querySelector('.seg.moving[data-part="' + d.from.part +
+    const srcEl = document.querySelector('.seg.moving[data-part="' + d.from.part +
       '"][data-pos="' + d.from.pos + '"][data-seg="' + d.from.seg + '"]');
-    if (src) src.classList.remove('moving');
+    if (srcEl) srcEl.classList.remove('moving');
 
+    const task = state.task;
+    if (!task || task.kind !== 'matchsticks') return;
+
+    /* Перенос держим: тень уже убрана выше, теперь решаем судьбу спички. */
     const target = (d.over && d.over.classList.contains('seg')) ? d.over : null;
     if (d.moved && target && d.lit) {
       const same = target.dataset.part === d.from.part &&
@@ -1854,6 +1925,16 @@ function setupMatchDrag() {
   };
   area.addEventListener('pointerup', finish);
   area.addEventListener('pointercancel', finish);
+  /* Страховка: палец мог отпустить спичку за пределами поля, и событие
+     не дошло бы до обработчика (setPointerCapture есть не во всех
+     браузерах). Слушаем всю страницу — тогда тень убирается всегда. */
+  if (!matchFinishGlobal) {
+    matchFinishGlobal = true;
+    window.addEventListener('pointerup', finish);
+    window.addEventListener('pointercancel', finish);
+    /* и при уходе со страницы/смене задачи */
+    window.addEventListener('blur', finish);
+  }
 }
 
 /* какая спичка под пальцем/курсором */
