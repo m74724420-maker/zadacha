@@ -1,0 +1,510 @@
+/* =============================================================
+   ФРАНЦУЗСКИЙ ДЛЯ БАБУШКИ — содержание
+   Путешествие по Франции: словарь, диалоги, фразы.
+
+   Устройство:
+   - каждая неделя — новая точка Франции, в паспорте появляется штамп;
+   - в уроке три-четыре НОВЫХ слова (не больше: память не резиновая);
+   - у слова, для которого нашлась запись человека, она и звучит
+     (файл fr/СЛОВО.ogg). Если файла нет, произносит голос телефона;
+   - фразы и диалоги произносит голос телефона: он умеет ставить
+     интонацию целой фразы, а отдельные записи есть только у слов.
+   ============================================================= */
+
+const FR = {
+
+  /* ---------------- ПАСПОРТ: точки путешествия ---------------- */
+  places: [
+    { code: 'paris',     nameRu: 'Париж',         nameFr: 'Paris',        emoji: '🗼', days: 5 },
+    { code: 'normandie', nameRu: 'Нормандия',     nameFr: 'Normandie',    emoji: '⛵', days: 5 },
+    { code: 'bretagne',  nameRu: 'Бретань',       nameFr: 'Bretagne',     emoji: '🥐', days: 5 },
+    { code: 'loire',     nameRu: 'Долина Луары',  nameFr: 'Loire',        emoji: '🏰', days: 5 },
+    { code: 'provence',  nameRu: 'Прованс',       nameFr: 'Provence',     emoji: '🌿', days: 5 },
+    { code: 'cotedazur', nameRu: 'Лазурный берег', nameFr: 'Côte d’Azur', emoji: '🌊', days: 5 }
+  ],
+
+  /* ---------------- СЛОВАРЬ ----------------
+     Ключ — слово по-французски, без пробелов и диакритики.
+     Если для ключа есть файл fr/СЛОВО.ogg, оно читает голос человека. */
+  words: {
+  /* ---------------- НОВЫЕ СЛОВА ДЛЯ АЛФАВИТА ----------------
+     Добавлены, потому что в старом списке слово-пример не начиналось
+     с нужной буквы: к D стояло «ami», к K — «lait», к X — «dix».
+     Теперь у каждой буквы слово, которое действительно на неё
+     начинается. */
+  /* Слова из алфавита — чтобы работала подсказка с переводом и
+     произношение. В ключах диакритика не нужна (ради имени файла). */
+    ami:       { ru: 'друг',       fr: 'ami',       emoji: '🧑' },
+    enfant:    { ru: 'ребёнок',    fr: 'enfant',    emoji: '🧒' },
+    lion:      { ru: 'лев',        fr: 'lion',      emoji: '🦁' },
+    nez:       { ru: 'нос',        fr: 'nez',       emoji: '👃' },
+    orange:    { ru: 'апельсин',   fr: 'orange',    emoji: '🍊' },
+    wagon:     { ru: 'вагон',      fr: 'wagon',     emoji: '🚃' },
+    cheval:    { ru: 'лошадь',     fr: 'cheval',    emoji: '🐴' },
+    jardin:    { ru: 'сад',        fr: 'jardin',    emoji: '🌷' },
+    pain:      { ru: 'хлеб',       fr: 'pain',      emoji: '🍞' },
+    rue:       { ru: 'улица',      fr: 'rue',       emoji: '🛣️' },
+    maison:    { ru: 'дом',        fr: 'maison',    emoji: '🏠' },
+    bateau:    { ru: 'лодка',      fr: 'bateau',    emoji: '⛵' },
+    chat:      { ru: 'кот',        fr: 'chat',      emoji: '🐱' },
+    fleur:     { ru: 'цветок',     fr: 'fleur',     emoji: '🌸' },
+    soleil:    { ru: 'солнце',     fr: 'soleil',    emoji: '☀️' },
+    drapeau:   { ru: 'флаг',                   fr: 'drapeau',   emoji: '🚩' },
+    garcon:    { ru: 'мальчик',                fr: 'garçon',    emoji: '👦' },
+    ille:      { ru: 'остров',                 fr: 'île',       emoji: '🏝️' },
+    kayak:     { ru: 'каяк',                   fr: 'kayak',     emoji: '🛶' },
+    quatre:    { ru: 'четыре',                 fr: 'quatre',    emoji: '4️⃣' },
+    usine:     { ru: 'завод',                  fr: 'usine',     emoji: '🏭' },
+    velo:      { ru: 'велосипед',              fr: 'vélo',      emoji: '🚲' },
+    xylophone: { ru: 'ксилофон',               fr: 'xylophone', emoji: '🎼' },
+    yaourt:    { ru: 'йогурт',                 fr: 'yaourt',    emoji: '🥛' },
+    zabre:     { ru: 'зебра',                  fr: 'zèbre',     emoji: '🦓' },
+    /* неделя 1 — Париж */
+    bonjour:   { ru: 'здравствуйте',          emoji: '👋' },
+    merci:     { ru: 'спасибо',               emoji: '🙏' },
+    bonsoir:   { ru: 'добрый вечер',          emoji: '🌆' },
+    salut:     { ru: 'привет',                emoji: '😄' },
+    oui:       { ru: 'да',                    emoji: '✅' },
+    non:       { ru: 'нет',                   emoji: '❌' },
+    pardon:    { ru: 'извините',              emoji: '🙇' },
+    eau:       { ru: 'вода',                  emoji: '💧' },
+    pain:      { ru: 'хлеб',                  emoji: '🍞' },
+    the:       { ru: 'чай',                   emoji: '🍵' },
+    cafe:      { ru: 'кофе',                  emoji: '☕' },
+    vin:       { ru: 'вино',                  emoji: '🍷' },
+    chat:      { ru: 'кот',                   emoji: '🐱' },
+    chien:     { ru: 'собака',                emoji: '🐶' },
+    cheval:    { ru: 'лошадь',                emoji: '🐴' },
+
+    /* неделя 2 — Нормандия */
+    mer:       { ru: 'море',                  emoji: '🌊' },
+    plage:     { ru: 'пляж',                  emoji: '🏖️' },
+    soleil:    { ru: 'солнце',                emoji: '☀️' },
+    bateau:    { ru: 'лодка',                 emoji: '⛵' },
+    ville:     { ru: 'город',                 emoji: '🏙️' },
+    rue:       { ru: 'улица',                 emoji: '🛣️' },
+    maison:    { ru: 'дом',                   emoji: '🏠' },
+    chambre:   { ru: 'комната',               emoji: '🛏️' },
+    cle:       { ru: 'ключ',                  emoji: '🔑' },
+
+    /* неделя 3 — Бретань */
+    croissant:  { ru: 'круассан',              emoji: '🥐' },
+    fromage:   { ru: 'сыр',                   emoji: '🧀' },
+    pomme:     { ru: 'яблоко',                emoji: '🍎' },
+    poisson:   { ru: 'рыба',                  emoji: '🐟' },
+    mairie:    { ru: 'ратуша',                emoji: '🏛️' },
+    festival:  { ru: 'праздник',              emoji: '🎉' },
+    musique:   { ru: 'музыка',                emoji: '🎵' },
+    dire:      { ru: 'сказать',               emoji: '💬' },
+    fromage_c: { ru: 'сырная тарелка',        emoji: '🧀' },
+
+    /* неделя 4 — Долина Луары */
+    chateau:   { ru: 'замок',                 emoji: '🏰' },
+    jardin:    { ru: 'сад',                   emoji: '🌷' },
+    fleur:     { ru: 'цветок',                emoji: '🌹' },
+    livre:     { ru: 'книга',                 emoji: '📖' },
+    table:     { ru: 'стол',                  emoji: '🪑' },
+    chaise:    { ru: 'стул',                  emoji: '💺' },
+    fire:      { ru: 'огонь',                 emoji: '🔥' },
+    nuit:      { ru: 'ночь',                  emoji: '🌙' },
+    petit:     { ru: 'маленький',             emoji: '🐜' },
+    grand:     { ru: 'большой',               emoji: '🐘' },
+
+    /* неделя 5 — Прованс */
+    lavande:   { ru: 'лаванда',               emoji: '💜' },
+    olive:     { ru: 'олива',                 emoji: '🫒' },
+    tomate:    { ru: 'помидор',               emoji: '🍅' },
+    marche:    { ru: 'рынок',                 emoji: '🧺' },
+    bouteille: { ru: 'бутылка',               emoji: '🍾' },
+    parapluie: { ru: 'зонт',                  emoji: '☂️' },
+    chaud:     { ru: 'жарко',                 emoji: '🥵' },
+    froid:     { ru: 'холодно',               emoji: '🥶' },
+    semaine:   { ru: 'неделя',                emoji: '📅' },
+    aubergine: { ru: 'баклажан',              emoji: '🍆' },
+
+    /* неделя 6 — Лазурный берег */
+    bleu:      { ru: 'синий',                 emoji: '🔵' },
+    blanc:     { ru: 'белый',                 emoji: '⚪' },
+    rouge:     { ru: 'красный',               emoji: '🔴' },
+    train:     { ru: 'поезд',                 emoji: '🚆' },
+    gare:      { ru: 'вокзал',                emoji: '🚉' },
+    billet:    { ru: 'билет',                 emoji: '🎫' },
+    argent:    { ru: 'деньги',                emoji: '💰' },
+    travail:   { ru: 'работа',                emoji: '🛠️' },
+    promenade: { ru: 'прогулка',              emoji: '🚶' },
+    souvenir:  { ru: 'сувенир',               emoji: '🎁' }
+  },
+
+  /* ---------------- ФРАЗЫ ----------------
+     Их произносит голос телефона — он умеет интонацию целой фразы. */
+  phrases: {
+    salut_oui:    { fr: 'Salut !',                    ru: 'Привет!' },
+    merci_beau:   { fr: 'Merci beaucoup',             ru: 'Большое спасибо' },
+    svp:          { fr: 'S’il vous plaît',            ru: 'Пожалуйста' },
+    comment:      { fr: 'Comment ça va ?',            ru: 'Как дела?' },
+    tres_bien:    { fr: 'Très bien, merci',           ru: 'Очень хорошо, спасибо' },
+    je_suis:      { fr: 'Je suis russe',              ru: 'Я из России' },
+    parler_fr:    { fr: 'Je parle un peu français',   ru: 'Я немного говорю по-французски' },
+    pas_compris:  { fr: 'Je ne comprends pas',        ru: 'Я не понимаю' },
+    repetez:      { fr: 'Répétez, s’il vous plaît',    ru: 'Повторите, пожалуйста' },
+    how_much:     { fr: 'Combien ça coûte ?',         ru: 'Сколько это стоит?' },
+    une_table:    { fr: 'Une table pour deux',        ru: 'Стол на двоих' },
+    laddition:    { fr: 'L’addition, s’il vous plaît', ru: 'Счёт, пожалуйста' },
+    ou_est:       { fr: 'Où est la gare ?',           ru: 'Где вокзал?' },
+    a_bientot:    { fr: 'À bientôt !',                ru: 'До свидания!' },
+    monsieur:     { fr: 'Monsieur, s’il vous plaît',   ru: 'Мужчина, пожалуйста' }
+  },
+
+  /* ---------------- СЦЕНКИ ----------------
+     Маленькие диалоги для практики: их читает голос телефона. */
+  scenes: [
+    { place: 'paris', emoji: '☕',
+      title: 'В кафе',
+      lines: [
+        { fr: 'Bonjour, madame !',      ru: 'Здравствуйте, мадам!' },
+        { fr: 'Bonjour !',              ru: 'Здравствуйте!' },
+        { fr: 'Un café, s’il vous plaît.', ru: 'Один кофе, пожалуйста.' },
+        { fr: 'Très bien. Combien ça coûte ?', ru: 'Очень хорошо. Сколько это стоит?' },
+        { fr: 'Trois euros.',            ru: 'Три евро.' },
+        { fr: 'Merci beaucoup !',        ru: 'Большое спасибо!' }
+      ] },
+    { place: 'paris', emoji: '🚉',
+      title: 'На вокзале',
+      lines: [
+        { fr: 'Excusez-moi, où est la gare ?', ru: 'Извините, где вокзал?' },
+        { fr: 'Allez tout droit.',             ru: 'Идите прямо.' },
+        { fr: 'Et un billet pour Nice, s’il vous plaît.', ru: 'И билет до Ниццы, пожалуйста.' },
+        { fr: 'C’est vingt euros.',             ru: 'Это двадцать евро.' },
+        { fr: 'Merci. Au revoir !',            ru: 'Спасибо. До свидания!' }
+      ] },
+    { place: 'normandie', emoji: '🏨',
+      title: 'В гостинице',
+      lines: [
+        { fr: 'Bonsoir. J’ai une chambre.', ru: 'Добрый вечер. У меня есть комната.' },
+        { fr: 'Une chambre pour deux nuits ?', ru: 'Комната на две ночи?' },
+        { fr: 'Oui, avec la vue sur la mer.', ru: 'Да, с видом на море.' },
+        { fr: 'Très bien. Et le petit déjeuner ?', ru: 'Очень хорошо. А завтрак?' },
+        { fr: 'À huit heures.',              ru: 'В восемь часов.' }
+      ] },
+    { place: 'bretagne', emoji: '🧺',
+      title: 'На рынке',
+      lines: [
+        { fr: 'Bonjour ! Vous avez du fromage ?', ru: 'Здравствуйте! У вас есть сыр?' },
+        { fr: 'Oui, bien sûr. Moutarde ou des fruits.', ru: 'Да, конечно. Горчица или зерно.' },
+        { fr: 'Je voudrais du fromage.',         ru: 'Я хотел бы сыр.' },
+        { fr: 'Combien ça coûte ?',             ru: 'Сколько это стоит?' },
+        { fr: 'Douze euros le kilo.',           ru: 'Двенадцать евро за килограмм.' }
+      ] },
+    { place: 'loire', emoji: '🏰',
+      title: 'В замке',
+      lines: [
+        { fr: 'Bonjour, je voudrais visiter le château.', ru: 'Здравствуйте, я хотел бы посмотреть замок.' },
+        { fr: 'C’est possible. Voici le billet.',       ru: 'Это возможно. Вот билет.' },
+        { fr: 'Merci. Le château est très ancien ?',   ru: 'Спасибо. Замок очень старый?' },
+        { fr: 'Oui, quatre cents ans.',                 ru: 'Да, четыреста лет.' },
+        { fr: 'Incroyable !',                           ru: 'Невероятно!' }
+      ] },
+    { place: 'provence', emoji: '☂️',
+      title: 'В жару',
+      lines: [
+        { fr: 'Il fait très chaud aujourd’hui.', ru: 'Сегодня очень жарко.' },
+        { fr: 'Oui, il fait trente-cinq degrés.', ru: 'Да, тридцать пять градусов.' },
+        { fr: 'Je voudrais un verre d’eau.',   ru: 'Я хотел бы стакан воды.' },
+        { fr: 'Bien sûr. Vous avez un parapluie ?', ru: 'Конечно. У вас есть зонт?' },
+        { fr: 'Non, merci. Au revoir !',       ru: 'Нет, спасибо. До свидания!' }
+      ] },
+    { place: 'cotedazur', emoji: '🌊',
+      title: 'На море',
+      lines: [
+        { fr: 'Bonjour ! La mer est belle aujourd’hui.', ru: 'Здравствуйте! Сегодня море красивое.' },
+        { fr: 'Oui, très bleue.',                        ru: 'Да, очень синее.' },
+        { fr: 'On peut nager ici ?',                     ru: 'Здесь можно плавать?' },
+        { fr: 'Oui, mais attention aux vagues.',          ru: 'Да, но осторожно с волнами.' }
+      ] }
+  ]
+};
+/* =============================================================
+   ФРАНЦУЗСКИЙ АЛФАВИТ
+
+   Без букв начинать нельзя: бабушка не сможет ни прочитать,
+   ни записать ни одного слова. Поэтому алфавит стоит первым
+   пунктом — «Перед дорогой».
+
+   Как устроено:
+   - 26 букв, по 13 на урок (два урока всего);
+   - у каждой буквы — слово-пример, где её слышно сразу:
+     вслух произносится ИМЕННО ОНО, а не буква. Это надёжнее,
+     чем читать букву: голоса на разных устройствах читают
+     одинокие буквы по-разному, а слово звучит одинаково везде;
+   - как букву называют по-русски — подсказка рядом.
+
+   1. A / a — «а»        — все французские слова на A
+   2. B / b — «бэ»       — «боб»
+   3. C / c — «сэ»       — «сыр» (fromage)
+   4. D / d — «дэ»       — «друг» (ami)
+   5. E / e — «у»        — «вода» (eau)
+   6. F / f — «эф»       — «семья» (famille)
+   7. G / g — «жэ»       — «собака» (chien)
+   8. H / h — «аш»       — «роза» (rose)
+   9. I / i — «и»        — «улица» (rue)
+  10. J / j — «ж»        — «яйцо» (œuf)
+  11. K / k — «ка»       — «корова» (vache)
+  12. L / l — «эль»      — «молоко» (lait)
+  13. M / m — «эм»       — «мама» (maman)
+
+  14. N / n — «эн»       — «нос» (nez)
+  15. O / o — «о»        — «вода» (eau)
+  16. P / p — «пэ»       — «папа» (papa)
+  17. Q / q — «ку»       — «кот» (chat)
+  18. R / r — «эр»       — «улица» (rue)
+  19. S / s — «эс»       — «вода» (eau)
+  20. T / t — «тэ»       — «чай» (thé)
+  21. U / u — «ю»        — «дождь» (pluie)
+  22. V / v — «вэ»       — «виноград» (raisin)
+  23. W / w — «даблвэ»   — «вода» (eau)
+  24. X / x — «икс»      — «десять» (dix)
+  25. Y / y — «игрек»    — «сыр» (fromage)
+  26. Z / z — «зэд»      — «зима» (hiver)
+*/
+
+/* =============================================================
+   ФРАНЦУЗСКИЙ АЛФАВИТ
+
+   У каждой буквы четыре вещи:
+     up/lo — сама буква;
+     ru    — как называют по-русски (для бабушки, чтобы узнавала);
+     name  — КАК ПРОИЗНОСИТСЯ БУКВА по-французски, написанное так,
+             чтобы голос телефона это прочитал правильно;
+     word  — слово, которое на эту букву начинается.
+
+   ПОЧЕМУ name ЗАПИСАН СЛОВАМИ, А НЕ ОДНОЙ БУКВОЙ.
+   Одиночные буквы разные программы читают по-разному: одна скажет
+   «эй», другая «лэй», третья промолчит. А «bé», «ache», «èle»
+   любой французский голос читает одинаково и правильно. Поэтому для
+   буквы мы говорим её настоящее французское имя.
+
+   ПОЧЕМУ СЛОВО-EXAMPLE ИМЕННО ТАКОЕ.
+   У четырёх букв французского произношения нет вовсе, и это главная
+   сложность языка. Такие буквы помечены знаком «тихо»: их нельзя
+   услышать, но они всё равно пишутся. Наоборот, в k kayak буква
+   слышна, хотя по-английски она молчала бы. Такие помечены «звонко».
+   ============================================================= */
+FR.letters = [
+  { up: 'A', lo: 'a', ru: 'а',      name: 'a',         word: 'ami',        wordRu: 'друг',                emoji: '🧑' },
+  { up: 'B', lo: 'b', ru: 'бэ',     name: 'bé',        word: 'bateau',     wordRu: 'лодка',               emoji: '⛵' },
+  { up: 'C', lo: 'c', ru: 'сэ',     name: 'cé',        word: 'chat',       wordRu: 'кот',                 emoji: '🐱' },
+  { up: 'D', lo: 'd', ru: 'дэ',     name: 'dé',        word: 'drapeau',    wordRu: 'флаг',                emoji: '🚩' },
+  { up: 'E', lo: 'e', ru: 'э',      name: 'é',         word: 'enfant',     wordRu: 'ребёнок',             emoji: '🧒' },
+  { up: 'F', lo: 'f', ru: 'эф',     name: 'èf',        word: 'fleur',      wordRu: 'цветок',              emoji: '🌸' },
+  { up: 'G', lo: 'g', ru: 'жэ',     name: 'gé',        word: 'garcon',     wordRu: 'мальчик',             emoji: '👦' },
+  { up: 'H', lo: 'h', ru: 'аш',     name: 'ache',      word: 'cheval',     wordRu: 'лошадь',              emoji: '🐴', quiet: true, note: 'h в начале слова не читается. Поэтому «cheval» звучит как «шваль».' },
+  { up: 'I', lo: 'i', ru: 'и',      name: 'i',         word: 'ille',        wordRu: 'остров',              emoji: '🏝️', quiet: true, note: 'i тоже молчит в начале слова. «île» звучит как «иль».' },
+  { up: 'J', lo: 'j', ru: 'жэ',     name: 'jé',        word: 'jardin',     wordRu: 'сад',                 emoji: '🌷' },
+  { up: 'K', lo: 'k', ru: 'к',      name: 'k',         word: 'kayak',      wordRu: 'каяк',                emoji: '🛶', loud: true, note: 'А вот k, наоборот, читается — поэтому такое слово есть только во французском.' },
+  { up: 'L', lo: 'l', ru: 'эль',    name: 'èle',       word: 'lion',       wordRu: 'лев',                 emoji: '🦁' },
+  { up: 'M', lo: 'm', ru: 'эм',     name: 'ème',       word: 'maison',     wordRu: 'дом',                 emoji: '🏠' },
+  { up: 'N', lo: 'n', ru: 'эн',     name: 'ène',       word: 'nez',        wordRu: 'нос',                 emoji: '👃' },
+  { up: 'O', lo: 'o', ru: 'о',      name: 'o',         word: 'orange',     wordRu: 'апельсин',            emoji: '🍊' },
+  { up: 'P', lo: 'p', ru: 'пэ',     name: 'pé',        word: 'pain',       wordRu: 'хлеб',                emoji: '🍞' },
+  { up: 'Q', lo: 'q', ru: 'кю',     name: 'k',         word: 'quatre',     wordRu: 'четыре',              emoji: '4️⃣', note: 'q читается как «к», а u после него не читается.' },
+  { up: 'R', lo: 'r', ru: 'эр',     name: 'ère',       word: 'rue',        wordRu: 'улица',               emoji: '🛣️' },
+  { up: 'S', lo: 's', ru: 'эс',     name: 'esse',      word: 'soleil',     wordRu: 'солнце',              emoji: '☀️' },
+  { up: 'T', lo: 't', ru: 'тэ',     name: 'té',        word: 'the',        wordRu: 'чай',                 emoji: '🍵' },
+  { up: 'U', lo: 'u', ru: 'ю',      name: 'u',         word: 'usine',      wordRu: 'завод',               emoji: '🏭' },
+  { up: 'V', lo: 'v', ru: 'вэ',     name: 'vé',        word: 'velo',       wordRu: 'велосипед',           emoji: '🚲' },
+  { up: 'W', lo: 'w', ru: 'дабл ю', name: 'double u',  word: 'wagon',      wordRu: 'вагон',               emoji: '🚃', note: 'Единственная буква с двумя слогами.' },
+  { up: 'X', lo: 'x', ru: 'икс',    name: 'ixse',      word: 'xylophone',  wordRu: 'ксилофон',            emoji: '🎼' },
+  { up: 'Y', lo: 'y', ru: 'игрек',  name: 'i grec',    word: 'yaourt',     wordRu: 'йогурт',              emoji: '🥛', note: 'y в начале слова читается как короткое «й».' },
+  { up: 'Z', lo: 'z', ru: 'зэд',    name: 'zède',      word: 'zabre',      wordRu: 'зебра',               emoji: '🦓' }
+];
+
+FR.lettersPerLesson = 13;
+
+/* =============================================================
+   ГРАММАТИКА
+
+   Не учебник, а то, что нужно, чтобы заговорить. Каждая тема — маленькая,
+   потому что за один раз больше половины мозг не удержит.
+
+   Устройство темы:
+     emoji, title  — как выглядит в списке;
+     idea          — объяснение по-русски, своими словами;
+     rows          — примеры: { fr: 'фраза', ru: 'перевод' }; по каждой
+                     можно коснуться и услышать, как она звучит;
+     tip           — самое главное, что легко забыть.
+
+   КАК ДОБАВИТЬ НОВУЮ ТЕМУ: допишите объект в этот массив. Она сразу
+   появится в списке — отдельных кнопок и кода трогать не нужно.
+   ============================================================= */
+FR.grammar = [
+  {
+    id: 'sexe', emoji: '🚻',
+    title: 'Он и она',
+    idea: 'У каждого предмета есть пол. Мужской — le, женский — la. ' +
+          'По-русски мы это не произносим, а по-французски обязательно: ' +
+          '«le» значит «тот», «la» значит «та».',
+    rows: [
+      { fr: 'le maison',  ru: 'дом (тот дом, где живут)' },
+      { fr: 'la maison',  ru: 'дом (тот дом, о котором говорим)' },
+      { fr: 'le chat',    ru: 'кот' },
+      { fr: 'la chatte',  ru: 'кошка' },
+      { fr: 'le pain',    ru: 'хлеб' },
+      { fr: 'la ville',   ru: 'город' },
+      { fr: 'le fromage', ru: 'сыр' }
+    ],
+    tip: 'Не ошибиться трудно: в женском роде слово кончается на -e. ' +
+         'Le pain — мужской (мужчина), la ville — женская (город).'
+  },
+  {
+    id: 'articles', emoji: '🔤',
+    title: 'Артикли: un, une, le, la',
+    idea: 'Артикль — служебное слово перед предметом. Оно ничего не ' +
+          'значит само по себе, но без него фраза не звучит по-французски. ' +
+          'Перед названием «один такой»: un, une. Перед уже известным, ' +
+          '«тот самый»: le, la.',
+    rows: [
+      { fr: "un homme",  ru: 'один мужчина, мужчина вообще' },
+      { fr: "une femme", ru: 'одна женщина, женщина вообще' },
+      { fr: "le Gare",   ru: 'тот самый вокзал (тот, о котором говорим)' },
+      { fr: "la maison", ru: 'тот самый дом' },
+      { fr: "les pains", ru: 'хлебы (несколько)' },
+      { fr: "des fleurs", ru: 'цветы (несколько)' }
+    ],
+    tip: 'Les и des — это «несколько». Они не меняются по роду: ' +
+         'les — он и она вместе.'
+  },
+  {
+    id: 'etre', emoji: '⭐',
+    title: 'Глагол «быть» — être',
+    idea: 'Самый нужный глагол. Он же — «Я есмь». ' +
+          'Смотрите: у всех, кроме «я», окончание -s. Это как в русском ' +
+          '«ты есЬ, он есТЬ» — только у нас s у всех сразу.',
+    rows: [
+      { fr: 'je suis',      ru: 'я есть' },
+      { fr: 'tu es',        ru: 'ты есть' },
+      { fr: 'il est',       ru: 'он есть' },
+      { fr: 'elle est',     ru: 'она есть' },
+      { fr: 'nous sommes',  ru: 'мы есть' },
+      { fr: 'vous êtes',    ru: 'вы есть' },
+      { fr: 'ils sont',     ru: 'они есть' },
+      { fr: 'je suis Marie', ru: 'я — Мария' }
+    ],
+    tip: 'После «je» — без s: je suis, а не «je suis». А «vous êtes» ' +
+         'с ударением на последнее «е».'
+  },
+  {
+    id: 'avoir', emoji: '🎒',
+    title: 'Глагол «иметь» — avoir',
+    idea: '«У меня есть». Он же «я имею». Считать от «я» — ничего общего ' +
+          'с русским, поэтому просто учим наизусть.',
+    rows: [
+      { fr: "j'ai",        ru: 'я имею, у меня есть' },
+      { fr: 'tu as',       ru: 'ты имешь' },
+      { fr: 'il a',        ru: 'он имеет' },
+      { fr: 'elle a',      ru: 'она имеет' },
+      { fr: 'nous avons',  ru: 'мы имеем' },
+      { fr: "vous avez",   ru: 'вы имеете' },
+      { fr: "ils ont",     ru: 'они имеют' },
+      { fr: "j'ai faim",   ru: 'я голоден (буквально: у меня голод)' },
+      { fr: "j'ai chaud",  ru: 'мне жарко' },
+      { fr: "j'ai peur",   ru: 'я боюсь' }
+    ],
+    tip: 'Ужас-правило: перед «du» и «le» оно теряет нос: le pain → ' +
+         "j'ai DU pain. То есть «de» вместо «du», но звучит всё равно «дю»."
+  },
+  {
+    id: 'nommer', emoji: '📛',
+    title: 'Как представиться',
+    idea: 'Глагол «называться». Сам он буквально «я называюсь». ' +
+          'В разговоре про себя — «я (зовусь) Мария». ' +
+          'Это первое, что говорит человек, когда знакомится.',
+    rows: [
+      { fr: "je m'appelle Marie", ru: 'меня зовут Мария' },
+      { fr: "je m'appelle comment?", ru: 'как меня зовут?' },
+      { fr: 'je suis de Moscou',   ru: 'я из Москвы' },
+      { fr: 'je viens de Russie',  ru: 'я из России (буквально: я прихожу из)' },
+      { fr: 'enchantée',           ru: 'приятно познакомиться (женщина)' },
+      { fr: 'enchanté',            ru: 'приятно познакомиться (мужчина)' }
+    ],
+    tip: 'Если хотите сказать «очень приятно» — смотрите на того, кто ' +
+         'перед вами: мужчине — enchanté, женщине — enchantée.'
+  },
+  {
+    id: 'non', emoji: '🙅',
+    title: 'Отрицание — ne … pas',
+    idea: 'Отрицание всегда двухчастное: ne перед глаголом, pas после. ' +
+          'Как «ни … ни» в русском. Частицу ne в разговоре часто ' +
+          'проглатывают, но pas — никогда.',
+    rows: [
+      { fr: "je ne comprends pas", ru: 'я не понимаю' },
+      { fr: "je ne sais pas",      ru: 'я не знаю' },
+      { fr: "ce n'est pas vrai",   ru: 'это неправда' },
+      { fr: "je ne veux pas",      ru: 'я не хочу' },
+      { fr: "il n'y a pas de...",   ru: 'нету… (нет и не будет)' }
+    ],
+    tip: 'Опровергают вежливо, в два шага: «Non, je ne veux pas» — ' +
+         '«нет, я не хочу». Без ne тоже поймут, но скажут, что вы учитесь.'
+  },
+  {
+    id: 'questions', emoji: '❓',
+    title: 'Как спросить',
+    idea: 'Порядок слов в вопросе прямой, как в утверждении. ' +
+          'Разница одна: голос идит ВВЕРХ, а в конце поднимается. ' +
+          'Слова-вопросы ставятся в начало.',
+    rows: [
+      { fr: 'comment?',   ru: 'как?' },
+      { fr: 'quoi?',      ru: 'что?' },
+      { fr: 'où?',        ru: 'где?' },
+      { fr: 'quand?',     ru: 'когда?' },
+      { fr: 'pourquoi?',  ru: 'почему?' },
+      { fr: 'qui?',       ru: 'кто?' },
+      { fr: 'combien?',   ru: 'сколько?' },
+      { fr: 'Quel est le prix?', ru: 'какая цена?' },
+      { fr: 'Où est la gare?',    ru: 'где вокзал?' }
+    ],
+    tip: 'Самый частый вопрос, который вам зададут: «Ça va?» — ' +
+         '«Как дела?». Ответ: «Oui, merci» или «Ça va, un peu lent» — ' +
+         '«нормально, только медленно».'
+  },
+  {
+    id: 'nombres', emoji: '🔢',
+    title: 'Числа от 1 до 10',
+    idea: 'Их нужно просто знать наизусть — в магазине и кафе без них ' +
+          'никуда. Дальше двадцать и дальше десятками: 20 — vingt, ' +
+          '21 — vingt et un, 30 — trente, 40 — quarante, 50 — cinquante, ' +
+          '60 — soixante, 70 — soixante-dix, 80 — quatre-vingts, ' +
+          '90 — quatre-vingt-dix.',
+    rows: [
+      { fr: 'un',      ru: '1' },
+      { fr: 'deux',    ru: '2' },
+      { fr: 'trois',   ru: '3' },
+      { fr: 'quatre',  ru: '4' },
+      { fr: 'cinq',    ru: '5' },
+      { fr: 'six',     ru: '6' },
+      { fr: 'sept',    ru: '7' },
+      { fr: 'huit',    ru: '8' },
+      { fr: 'neuf',    ru: '9' },
+      { fr: 'dix',     ru: '10' }
+    ],
+    tip: 'Сорок — «quarante», а не «quarante-minq». Сорок на конце ' +
+         'произносится «карант», без «т» в конце.'
+  },
+  {
+    id: 'politesse', emoji: '🙏',
+    title: 'Вежливые слова',
+    idea: 'Во французском вежливость обязательна. Без этих слов вас ' +
+          'считают грубияном, даже если вы сказали правильно.',
+    rows: [
+      { fr: "s'il vous plaît", ru: 'пожалуйста' },
+      { fr: 'merci',          ru: 'спасибо' },
+      { fr: "merci beaucoup", ru: 'большое спасибо' },
+      { fr: "de rien",        ru: 'не за что' },
+      { fr: 'excusez-moi',    ru: 'разрешите, простите (войти, пройти)' },
+      { fr: 'pardon',         ru: 'извините (за столкнулись)' },
+      { fr: 'bonne journée',  ru: 'хорошего дня' },
+      { fr: 'au revoir',      ru: 'до свидания' }
+    ],
+    tip: 'После «merci» во французском принято отвечать «de rien» — ' +
+         '«не за что». Иначе разговор повиснет в неловкости.'
+  }
+];
