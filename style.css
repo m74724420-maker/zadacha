@@ -1,0 +1,2049 @@
+/* =============================================================
+   Логические задачки — оформление
+   Темы: жёлтая (по умолчанию), оранжевая, светлая (белая тетрадь),
+   тёмная (блокнот)
+   ============================================================= */
+
+:root {
+  --fs: 20px;
+  --radius: 16px;
+  /* высота нижней панели: экраны делают такой запас снизу, чтобы
+     панель не накрывала содержимое (особенно шахматную доску) */
+  --nav-h: 6rem;
+  --shadow-sheet: 0 8px 20px rgba(90,70,25,.10), 0 1px 2px rgba(90,70,25,.07);
+  --shadow-card: 0 3px 10px rgba(90,70,25,.08);
+}
+
+body[data-theme="yellow"] {
+  --paper: #fdf6d8;
+  --paper-2: #f8eec8;
+  --line: #e8dbac;
+  --line-soft: #f0e7c4;
+  --ink: #4c3e15;
+  --ink-soft: #7e6d38;
+  --accent: #a9862f;
+  --accent-2: #8b6f24;
+  --btn: #fbe293;
+  --btn-ink: #43340b;
+  --margin-line: #e3b1b1;   /* красная полоса поля, как в тетради */
+  --screen-shade: rgba(253, 246, 216, .68);
+  --bg-sky: #cfe4ef;
+  --bg-ground: #e8dfc2;
+  --shadow-sheet: 0 8px 20px rgba(120,95,30,.13), 0 1px 2px rgba(120,95,30,.08);
+  --shadow-card: 0 6px 16px rgba(120,95,30,.20);
+  --shadow-soft: 0 6px 16px rgba(120,95,30,.20);
+  --shadow-pop: 0 10px 26px rgba(110,85,25,.32);
+  --shadow-cell: 0 2px 4px rgba(120,95,30,.24);
+  --line-h: 1.85em;         /* высота одной строки тетради */
+}
+/* Оранжевая тема — тёплая, светло-коричневая: бумага цвета
+   осенних листьев. Чернила тёмно-коричневые, контраст высокий,
+   чтобы текст читался легко. */
+body[data-theme="orange"] {
+  --paper: #fdf2e4;
+  --paper-2: #f8e3cd;
+  --line: #e7c8a6;
+  --line-soft: #f3ddc5;
+  --ink: #3a2a17;
+  --ink-soft: #6d5136;
+  --accent: #a9541a;
+  --accent-2: #8a4314;
+  --btn: #f8cb8d;
+  --btn-ink: #3f2510;
+  --margin-line: #d99a8a;
+  --screen-shade: rgba(253, 242, 228, .74);
+  --bg-sky: #f4d9bb;
+  --bg-ground: #e9caa4;
+  --shadow-sheet: 0 8px 20px rgba(130,80,30,.13), 0 1px 2px rgba(130,80,30,.08);
+  --shadow-card: 0 6px 16px rgba(130,80,30,.20);
+  --shadow-soft: 0 6px 16px rgba(130,80,30,.20);
+  --shadow-pop: 0 10px 26px rgba(120,70,20,.32);
+  --shadow-cell: 0 2px 4px rgba(130,80,30,.24);
+  --line-h: 1.85em;
+}
+body[data-theme="light"] {
+  --paper: #fdfefe;
+  --paper-2: #f2f6fb;
+  --line: #cfdcea;
+  --line-soft: #e4ecf5;
+  --ink: #233040;
+  --ink-soft: #5f7182;
+  --accent: #3c7da9;
+  --accent-2: #316589;
+  --btn: #e3effa;
+  --btn-ink: #1c3550;
+  --margin-line: #e7b9bf;
+  --screen-shade: rgba(253, 254, 254, .72);
+  --bg-sky: #dbe8f2;
+  --bg-ground: #eef2f6;
+  --shadow-sheet: 0 8px 20px rgba(40,70,100,.10), 0 1px 2px rgba(40,70,100,.06);
+  --shadow-card: 0 6px 16px rgba(40,70,100,.17);
+  --shadow-soft: 0 6px 16px rgba(40,70,100,.17);
+  --shadow-pop: 0 10px 26px rgba(35,60,90,.26);
+  --shadow-cell: 0 2px 4px rgba(40,70,100,.20);
+  --line-h: 1.85em;
+}
+body[data-theme="dark"] {
+  --paper: #171b21;
+  --paper-2: #1f252d;
+  --line: #343e4b;
+  --line-soft: #272f39;
+  --ink: #e6ecf3;
+  --ink-soft: #a4b1bf;
+  --accent: #7fb2dd;
+  --accent-2: #a2cbec;
+  --btn: #2d3846;
+  --btn-ink: #eaf2fa;
+  --margin-line: #7b4f57;
+  --screen-shade: rgba(23, 27, 33, .8);
+  --bg-sky: #232b36;
+  --bg-ground: #1b2129;
+  --shadow-sheet: 0 8px 20px rgba(0,0,0,.35), 0 1px 2px rgba(0,0,0,.25);
+  --shadow-card: 0 6px 16px rgba(0,0,0,.45);
+  --shadow-soft: 0 6px 16px rgba(0,0,0,.45);
+  --shadow-pop: 0 10px 26px rgba(0,0,0,.5);
+  --shadow-cell: 0 2px 4px rgba(0,0,0,.4);
+  --line-h: 1.85em;
+}
+
+* { box-sizing: border-box; }
+
+/* Важно: если у элемента свой стиль с display (flex, grid и т.п.),
+   он сильнее браузерного правила [hidden] и элемент остаётся видимым.
+   Поэтому [hidden] усиливаем — иначе «скрытое» продолжает занимать экран. */
+[hidden] { display: none !important; }
+
+html { font-size: var(--fs); }
+
+body {
+  margin: 0;
+  background: var(--paper);
+  color: var(--ink);
+  font-family: 'PT Serif', Georgia, serif;
+  line-height: 1.5;
+  padding-bottom: calc(var(--nav-h) + 1.5rem);   /* место под нижнюю панель */
+  min-height: 100vh;
+}
+
+.screen { padding: 1rem 1rem 1.5rem; }
+
+/* ---------- КНОПКИ И ПОЛЯ ---------- */
+.big-btn {
+  font-family: 'Yeseva One', serif;
+  font-size: 1.1rem;
+  background: var(--btn);
+  color: var(--btn-ink);
+  border: 2px solid var(--accent);
+  border-radius: var(--radius);
+  padding: .7em 1.4em;
+  cursor: pointer;
+  box-shadow: 0 3px 0 var(--accent), var(--shadow-card);
+  transition: transform .06s ease, box-shadow .06s ease;
+}
+.big-btn:active { transform: translateY(2px); box-shadow: 0 1px 0 var(--accent); }
+.big-btn.small-btn { font-size: 1rem; padding: .55em 1.2em; }
+
+.link-btn {
+  background: none;
+  border: none;
+  color: var(--accent);
+  font-family: 'PT Serif', serif;
+  font-size: .95rem;
+  text-decoration: underline;
+  cursor: pointer;
+  padding: .4em .2em;
+}
+.link-btn.danger { color: #b23b3b; }
+
+.back-btn {
+  background: var(--paper-2);
+  border: 2px solid var(--accent);
+  color: var(--ink);
+  border-radius: 999px;
+  font-size: .9rem;
+  padding: .35em .9em;
+  cursor: pointer;
+  font-family: 'PT Serif', serif;
+}
+
+.field { display: block; margin: 1rem 0; }
+.field > span { display: block; font-size: .85rem; color: var(--ink-soft); margin-bottom: .3rem; }
+.field i { font-style: normal; opacity: .7; }
+.field input[type="text"] {
+  width: 100%;
+  font-family: 'PT Serif', serif;
+  font-size: 1rem;
+  color: var(--ink);
+  background: var(--paper);
+  border: 2px solid var(--line);
+  border-radius: 10px;
+  padding: .55em .7em;
+}
+.field input:focus { outline: 3px solid var(--accent); }
+
+/* ---------- ТЕТРАДНЫЙ ЛИСТ ----------
+   Лист в линейку: полоса поля слева, мягкая тень и загнутый
+   уголок справа сверху — как в обычной школьной тетради. */
+.sheet {
+  position: relative;
+  background: var(--paper);
+  background-image:
+    linear-gradient(to right,
+      transparent 0,
+      transparent 2.1rem,
+      var(--margin-line) 2.1rem,
+      var(--margin-line) calc(2.1rem + 1.5px),
+      transparent calc(2.1rem + 1.5px)),
+    repeating-linear-gradient(to bottom,
+      transparent 0,
+      transparent calc(var(--line-h) - 1px),
+      var(--line) calc(var(--line-h) - 1px),
+      var(--line) var(--line-h));
+  border: 1.5px solid var(--line);
+  border-radius: var(--radius);
+  padding: 1.3rem 1.2rem 1.6rem 2.5rem;
+  margin: 0 auto;
+  max-width: 46rem;
+  box-shadow: var(--shadow-sheet);
+}
+/* загнутый уголок */
+.sheet::after {
+  content: '';
+  position: absolute;
+  top: -1.5px;
+  right: -1.5px;
+  width: 1.6rem;
+  height: 1.6rem;
+  background: linear-gradient(225deg, var(--paper-2) 0 50%, transparent 50%);
+  border-left: 1.5px solid var(--line);
+  border-bottom: 1.5px solid var(--line);
+  border-radius: 0 var(--radius) 0 0;
+}
+/* дырочки от дневника слева */
+.sheet::before {
+  content: '';
+  position: absolute;
+  left: .5rem;
+  top: 1.8rem;
+  bottom: 1.8rem;
+  width: .5rem;
+  background-image: radial-gradient(circle, rgba(110,95,60,.2) 0 45%, transparent 52%);
+  background-size: 100% 2.6rem;
+  background-repeat: repeat-y;
+  pointer-events: none;
+}
+.sheet-title {
+  font-family: 'Yeseva One', serif;
+  font-size: 1.4rem;
+  color: var(--accent);
+  margin: 0 0 .5rem;
+}
+.sheet-sub {
+  font-family: 'Yeseva One', serif;
+  font-size: 1.15rem;
+  color: var(--accent);
+  margin: 1.6rem 0 .6rem;
+}
+.sheet-lead { margin: 0 0 1rem; color: var(--ink-soft); }
+.small-note { font-size: .82rem; color: var(--ink-soft); }
+
+/* ---------- СТАРТОВЫЙ ЭКРАН ---------- */
+.start { padding: 0; }
+.start-photo {
+  position: relative;
+  height: 46vh;
+  min-height: 15rem;
+  background: var(--paper-2);
+  overflow: hidden;
+}
+.start-photo-img {
+  position: absolute; inset: 0;
+  background-size: cover;
+  background-position: center;
+}
+.start-shade {
+  position: absolute; inset: 0;
+  background: linear-gradient(to bottom, rgba(0,0,0,.15), rgba(0,0,0,.55));
+}
+.start-place {
+  position: absolute;
+  left: .8rem; bottom: .8rem;
+  background: rgba(0,0,0,.55);
+  color: #fff;
+  padding: .3em .8em;
+  border-radius: 999px;
+  font-size: .8rem;
+}
+.start-inner {
+  text-align: center;
+  padding: 1.4rem 1.2rem 2rem;
+}
+.start-greeting {
+  font-family: 'Yeseva One', serif;
+  font-size: 2rem;
+  margin: 0;
+  color: var(--accent);
+}
+.start-title {
+  font-family: 'Yeseva One', serif;
+  font-size: 1.5rem;
+  margin: .3rem 0 .8rem;
+}
+.start-caption {
+  font-size: 1rem;
+  color: var(--ink-soft);
+  max-width: 30rem;
+  margin: 0 auto 1.4rem;
+}
+
+/* ---------- ПРОФИЛЬ (создание) ---------- */
+.avatar-row {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  margin: 1.2rem 0;
+}
+.avatar-btn {
+  width: 5rem; height: 5rem;
+  flex: 0 0 5rem;
+  border-radius: 50%;
+  border: 3px solid var(--accent);
+  background: var(--paper-2);
+  font-size: 2.4rem;
+  cursor: pointer;
+  overflow: hidden;
+  display: flex; align-items: center; justify-content: center;
+}
+.avatar-btn img { width: 100%; height: 100%; object-fit: cover; }
+.avatar-name { font-family: 'Yeseva One', serif; font-size: 1.15rem; color: var(--accent); }
+
+/* ---------- ГЛАВНЫЙ ЭКРАН ---------- */
+.main-head { text-align: center; margin: .5rem 0 1.2rem; }
+.main-title {
+  font-family: 'Yeseva One', serif;
+  font-size: 1.6rem;
+  margin: 0;
+  color: var(--accent);
+  position: relative;
+  display: inline-block;
+  padding-bottom: .3rem;
+}
+/* мягкая черта под заголовком — будто нарисована от руки */
+.main-title::after {
+  content: '';
+  position: absolute;
+  left: 4%;
+  right: 4%;
+  bottom: 0;
+  height: .3rem;
+  border-radius: 999px;
+  background: linear-gradient(to right,
+    transparent, var(--accent) 18%, var(--accent) 82%, transparent);
+  opacity: .35;
+}
+.main-hello { color: var(--ink-soft); margin: .3rem 0 0; }
+
+.menu {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(15rem, 1fr));
+  gap: 1rem;
+  max-width: 46rem;
+  margin: 0 auto;
+}
+.task-card {
+  position: relative;
+  background: var(--paper-2);
+  background-image:
+    repeating-linear-gradient(to bottom,
+      transparent 0,
+      transparent calc(var(--line-h) - 1px),
+      var(--line-soft) calc(var(--line-h) - 1px),
+      var(--line-soft) var(--line-h));
+  border: 1.5px solid var(--line);
+  border-radius: var(--radius);
+  padding: .9rem 1rem 1.1rem;
+  box-shadow: var(--shadow-card);
+}
+.task-card h3 { font-family: 'Yeseva One', serif; font-size: 1.15rem; margin: 0 0 .2rem; color: var(--accent); }
+/* осенняя пуговица, на которой держится карточка (зимой поменяем на снежинку) */
+.task-card::before {
+  content: '';
+  position: absolute;
+  top: -.62rem;
+  left: 50%;
+  transform: translateX(-50%) rotate(-3deg);
+  width: 2.9rem;
+  height: 1.45rem;
+  border-radius: 999px;
+  background: linear-gradient(to bottom, #e2a75f, #b9722a);
+  border: 1px solid rgba(105, 62, 16, .6);
+  box-shadow: 0 2px 5px rgba(90, 60, 20, .34), inset 0 1px 0 rgba(255, 255, 255, .45);
+  pointer-events: none;
+}
+/* четыре дырочки на пуговице */
+.task-card::after {
+  content: '';
+  position: absolute;
+  top: -.3rem;
+  left: 50%;
+  transform: translateX(-50%) rotate(-3deg);
+  width: 1.3rem;
+  height: .5rem;
+  background-image: radial-gradient(circle, rgba(78, 43, 8, .85) 0 34%, transparent 44%);
+  background-size: .325rem .5rem;
+  background-repeat: repeat-x;
+  pointer-events: none;
+}
+.task-card .task-hint { font-size: .82rem; color: var(--ink-soft); margin: 0 0 .7rem; }
+.level-row { display: flex; gap: .5rem; flex-wrap: wrap; }
+.level-btn {
+  flex: 1 1 5rem;
+  font-family: 'PT Serif', serif;
+  font-size: .92rem;
+  padding: .5em .3em;
+  border: 2px solid var(--accent);
+  border-radius: 10px;
+  background: var(--paper);
+  color: var(--ink);
+  cursor: pointer;
+}
+.level-btn:active { background: var(--btn); }
+.main-note {
+  max-width: 46rem;
+  margin: 1.6rem auto 0;
+  font-size: .85rem;
+  color: var(--ink-soft);
+  text-align: center;
+}
+
+/* ---------- ЭКРАН ИГРЫ ---------- */
+.game-head {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  max-width: 46rem;
+  margin: 0 auto .8rem;
+}
+/* заголовок задачи может расти, а кнопки шрифта должны всегда
+   оставаться на месте — не даём тексту их вытолкнуть */
+.game-head-text { flex: 1 1 auto; min-width: 0; }
+.font-tools {
+  flex: 0 0 auto;
+  align-self: center;
+  display: flex;
+  gap: .4rem;
+  white-space: nowrap;
+}
+.game-title { font-family: 'Yeseva One', serif; font-size: 1.3rem; margin: 0; color: var(--accent); }
+.game-level { margin: .1rem 0 0; font-size: .82rem; color: var(--ink-soft); }
+.task-question {
+  font-family: 'Neucha', cursive;
+  font-size: 1.15rem;
+  line-height: var(--line-h);
+  color: var(--ink);
+}
+.answer-area { margin-top: 1rem; }
+.result {
+  margin-top: .8rem;
+  padding: .7rem .9rem;
+  border-radius: 10px;
+  font-size: 1rem;
+  border: 2px solid var(--accent);
+}
+.result.ok { background: rgba(120,190,110,.25); }
+.result.no { background: rgba(200,120,110,.22); }
+.game-actions { display: flex; gap: 1.2rem; flex-wrap: wrap; margin-top: 1rem; }
+
+.solution {
+  margin-top: 1.2rem;
+  border-top: 2px dashed var(--line);
+  padding-top: .8rem;
+}
+.solution h3 { font-family: 'Yeseva One', serif; color: var(--accent); margin: 0 0 .5rem; }
+.solution ol { margin: 0; padding-left: 1.2rem; }
+.solution li { line-height: var(--line-h); }
+.solution-answer { margin-top: .6rem; font-size: 1.05rem; }
+
+/* ---------- ШАХМАТЫ ---------- */
+.chess-area { margin-top: 1rem; }
+.chessboard {
+  display: grid;
+  grid-template-columns: repeat(8, 1fr);
+  /* Размер доски не зависит от настройки шрифта: иначе при большом
+     шрифте строки растягиваются, доска вырастает по высоте и нижние
+     поля уезжают под панель. Режем по трём границам: ширина экрана,
+     520 пикселей и высота окна. */
+  /* Рамка — через outline, а не border: border занимает 4 пикселя внутрь
+     доски, и подписи полей, выровненные по её внешнему краю, на эти
+     4 пикселя съезжали: половина букв вставала не над своей клеткой.
+     outline рисуется снаружи и размером доски не влияет. */
+  width: 100%;
+  margin: 0;
+  border: none;
+  outline: 4px solid var(--ink);
+  aspect-ratio: 1;
+  /* minmax(0, 1fr), а не просто 1fr: иначе строку растягивает сама
+     фигура (её размер зависит от настройки шрифта), и при крупном
+     шрифте клетки вылезают за края доски — цифры рядов тогда не
+     совпадают со своими рядами */
+  grid-template-rows: repeat(8, minmax(0, 1fr));
+  touch-action: manipulation;
+}
+.csq {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  position: relative;
+  cursor: pointer;
+  aspect-ratio: 1;
+  min-height: 0;
+  /* фигура никогда не распирает клетку: размер считаем от ширины доски,
+     а не от общего шрифта в настройках */
+  font-size: 7cqw;
+  line-height: 1;
+}
+.csq.light { background: var(--sq-light); }
+.csq.dark { background: var(--sq-dark); }
+.csq.sel { outline: 3px solid var(--accent); outline-offset: -3px; }
+.csq.lastmove { box-shadow: inset 0 0 0 100px rgba(255, 230, 120, .28); }
+.csq.target::after {
+  content: '';
+  position: absolute;
+  width: 28%;
+  height: 28%;
+  border-radius: 50%;
+  background: rgba(0, 0, 0, .28);
+}
+.csq.target.capture::after {
+  width: 86%;
+  height: 86%;
+  background: transparent;
+  border: 4px solid rgba(200, 40, 40, .55);
+}
+.cpiece { pointer-events: none; }
+.cpiece.white { color: #ffffff; text-shadow: 0 1px 2px rgba(0,0,0,.85), 0 0 1px rgba(0,0,0,.7); }
+.cpiece.black { color: #14171c; text-shadow: 0 1px 2px rgba(255,255,255,.6); }
+/* набор «Контур»: белые — светлые с тёмной обводкой, чёрные — тёмные,
+   чтобы белые и чёрные фигуры не путались между собой */
+.cpiece.outline.white {
+  color: #f6f8fa;
+  -webkit-text-stroke: 1.2px #1b1f26;
+  text-shadow: 0 1px 2px rgba(0,0,0,.3);
+}
+.cpiece.outline.black {
+  color: #101418;
+  -webkit-text-stroke: 1px rgba(255,255,255,.5);
+  text-shadow: 0 1px 2px rgba(0,0,0,.35);
+}
+
+/* Доска и подписи полей в одной обёртке: буквы a–h идут строкой под
+   доской, цифры 8–1 — колонкой слева, точно напротив своих рядов.
+   Подписи живут на полях и в размер доски не входят, поэтому сама
+   доска остаётся ровным квадратом на всю доступную ширину. */
+/* Колонка доски — auto, а не 1fr: тогда она обжимается ровно по
+   доске, и подписи (буквы под клетками, цифры напротив рядов)
+   всегда совпадают с ней, какой бы размер доска ни получила.
+   Размер доски ставит fitChessBoard — по ширине окна и по высоте. */
+.chess-wrap {
+  display: grid;
+  grid-template-columns: 1.5rem auto;      /* колонка цифр + доска */
+  grid-template-rows: auto auto;          /* строка букв + доска */
+  align-items: stretch;
+  justify-self: center;
+}
+/* буквы a–h — строкой под доской, ровно по ширине её клеток */
+.chesslabels {
+  grid-column: 2;
+  grid-row: 1;
+  display: grid;
+  grid-template-columns: repeat(8, 1fr);
+  width: 100%;
+  background: var(--paper);
+  font-size: .75rem;
+  line-height: 1.35;
+  padding-top: .1rem;
+}
+.chesslabels .clet { text-align: center; color: var(--ink-soft); }
+/* цифры 8–1 — колонкой слева, каждая напротив своего ряда */
+.chessnums {
+  grid-column: 1;
+  grid-row: 2;
+  display: grid;
+  grid-template-rows: repeat(8, 1fr);
+  background: var(--paper);
+  padding-right: .15rem;
+}
+.chessnums .cnum {
+  text-align: center;
+  align-self: center;
+  color: var(--ink-soft);
+  font-size: .7rem;
+  line-height: 1;
+}
+/* Рамка — на самой доске, буквы и цифры остаются на полях. */
+.chess-wrap .chessboard {
+  grid-column: 2;
+  grid-row: 2;
+  margin: 0;
+  /* базовая ширина; точную подставляет fitChessBoard под экран */
+  width: 480px;
+  /* размер фигур считаем от ширины самой доски */
+  container-type: inline-size;
+}
+
+.chess-score { text-align: center; font-size: .95rem; margin-top: .6rem; color: var(--ink-soft); }
+.chess-btns { display: flex; gap: 1rem; justify-content: center; flex-wrap: wrap; margin-top: .4rem; }
+.chess-styles { margin-top: .9rem; }
+.style-row { display: flex; align-items: center; gap: .4rem; flex-wrap: wrap; margin-bottom: .5rem; }
+.style-label { font-size: .82rem; color: var(--ink-soft); min-width: 4.6rem; }
+.style-btn {
+  font-family: 'PT Serif', serif;
+  font-size: .82rem;
+  padding: .3em .7em;
+  border: 2px solid var(--line);
+  border-radius: 8px;
+  background: var(--paper);
+  color: var(--ink);
+  cursor: pointer;
+}
+.style-btn.active { border-color: var(--accent); font-weight: 700; }
+
+/* ---------- СУДОКУ ---------- */
+.sudoku-area { margin-top: 1rem; }
+.sudoku {
+  display: grid;
+  grid-template-columns: repeat(9, 1fr);
+  gap: 1px;
+  background: var(--line);
+  border: 3px solid var(--accent);
+  width: min(100%, 27rem);
+  margin: 0 auto;
+  aspect-ratio: 1;
+}
+.sudoku .cell {
+  background: var(--paper);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.15rem;
+  cursor: pointer;
+  user-select: none;
+}
+.sudoku .cell.fixed { background: var(--paper-2); font-weight: 700; }
+.sudoku .cell.sel { outline: 3px solid var(--accent); outline-offset: -3px; }
+.sudoku .cell.wrong { color: #c0392b; }
+/* Толстые линии квадратов 3×3 рисуем ВНУТРИ клетки (inset-тень).
+   Обычные рамки выступали за пределы сетки — выглядели как торчащие палочки. */
+.numpad { display: flex; gap: .4rem; justify-content: center; flex-wrap: wrap; margin-top: .8rem; }
+.numpad button {
+  width: 2.6rem; height: 2.6rem;
+  font-size: 1.1rem;
+  border: 2px solid var(--accent);
+  border-radius: 8px;
+  background: var(--paper-2);
+  color: var(--ink);
+  cursor: pointer;
+}
+
+/* ---------- САПЁР ---------- */
+.mines-area { margin-top: 1rem; }
+.mines {
+  display: grid;
+  gap: 1px;
+  background: var(--line);
+  border: 3px solid var(--accent);
+  width: min(100%, 34rem);
+  margin: 0 auto;
+  background-color: var(--line);
+}
+.mines .mcell {
+  background: var(--paper-2);
+  aspect-ratio: 1;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 1rem;
+  cursor: pointer;
+  user-select: none;
+}
+.mines .mcell.open { background: var(--paper); cursor: default; }
+.mines .mcell.flag { background: var(--paper); }
+.mines .mcell.boom { background: #d24b4b; color: #fff; }
+.mines .m1 { color: #2f6fab; } .mines .m2 { color: #2e7d32; }
+.mines .m3 { color: #c0392b; } .mines .m4 { color: #6a3fa0; }
+.mines .m5 { color: #a15c00; } .mines .m6 { color: #00838f; }
+.mines .m7 { color: #455a64; } .mines .m8 { color: #777; }
+.mines-stats {
+  display: flex; justify-content: space-between;
+  max-width: 34rem; margin: 0 auto .6rem;
+  font-size: .9rem; color: var(--ink-soft);
+}
+
+/* ---------- СПИЧКИ ---------- */
+.match-area { margin-top: 1rem; overflow-x: auto; }
+.match-row {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: .3rem;
+  font-family: 'Yeseva One', serif;
+  font-size: 1.5rem;
+  color: var(--ink);
+}
+.digit { display: inline-flex; flex-direction: column; align-items: center; }
+.seg {
+  /* это прямоугольники внутри svg — цвет им задаётся через fill,
+     а не через background */
+  fill: #e0a94f;
+  stroke: rgba(120, 78, 20, .35);
+  stroke-width: .6;
+  cursor: grab;
+}
+.seg.off {
+  fill: rgba(120, 90, 40, .07);
+  stroke: rgba(120, 90, 40, .1);
+  cursor: default;
+}
+.seg.moving { opacity: .3; }
+.seg.drop-ok { fill: #86bb63; stroke: rgba(60, 100, 30, .55); }
+.match-ghost {
+  position: fixed;
+  z-index: 200;
+  pointer-events: none;
+  background: #e2b463;
+  border-radius: 3px;
+  box-shadow: 0 3px 8px rgba(60,40,10,.45);
+  opacity: .95;
+}
+.digit svg { display: block; }
+/* Невидимая площадка для пальца: на телефоне сама спичка —
+   полоска в несколько пикселей, в неё не попасть. */
+.seghit { pointer-events: all; cursor: grab; }
+.match-op { padding: 0 .5rem; }
+.moves-info { text-align: center; font-size: .9rem; color: var(--ink-soft); margin-top: .6rem; }
+
+/* ---------- НИЖНЯЯ ПАНЕЛЬ ---------- */
+.bottom-nav {
+  position: fixed;
+  left: 0; right: 0; bottom: 0;
+  display: flex;
+  justify-content: space-around;
+  align-items: center;
+  background: var(--paper-2);
+  border-top: 2px solid var(--line);
+  padding: .4rem .5rem calc(.4rem + env(safe-area-inset-bottom));
+  z-index: 40;
+}
+.nav-item {
+  display: flex; flex-direction: column; align-items: center; gap: .15rem;
+  background: none; border: none; cursor: pointer;
+  font-family: 'PT Serif', serif; color: var(--ink);
+  padding: .2rem .6rem;
+}
+.nav-ico { font-size: 1.4rem; }
+.nav-cap { font-size: .72rem; color: var(--ink-soft); }
+.nav-avatar-img {
+  width: 2.4rem; height: 2.4rem;
+  flex: 0 0 2.4rem;
+  min-width: 2.4rem;
+  border-radius: 50%;
+  border: 2px solid var(--accent);
+  background: var(--paper);
+  display: flex; align-items: center; justify-content: center;
+  font-size: 1.3rem;
+  overflow: hidden;
+}
+.nav-avatar-img img { width: 100%; height: 100%; object-fit: cover; }
+
+/* ---------- ПРОФИЛЬ ---------- */
+.profile-head { display: flex; align-items: center; gap: 1rem; margin: 1rem 0; }
+.profile-avatar {
+  width: 4.5rem; height: 4.5rem;
+  flex: 0 0 4.5rem;
+  min-width: 4.5rem;
+  border-radius: 50%;
+  border: 3px solid var(--accent);
+  background: var(--paper-2);
+  display: flex; align-items: center; justify-content: center;
+  font-size: 2.2rem;
+  overflow: hidden;
+}
+.profile-avatar img { width: 100%; height: 100%; object-fit: cover; }
+.profile-name { font-family: 'Yeseva One', serif; font-size: 1.3rem; margin: 0; color: var(--accent); }
+.profile-year { margin: 0; color: var(--ink-soft); font-size: .9rem; }
+
+.stat-row { display: flex; gap: .6rem; flex-wrap: wrap; }
+.stat {
+  flex: 1 1 8rem;
+  background: var(--paper-2);
+  border: 2px solid var(--line);
+  border-radius: 10px;
+  padding: .7rem .5rem;
+  text-align: center;
+}
+.stat-num { font-family: 'Yeseva One', serif; font-size: 1.4rem; color: var(--accent); }
+.stat-cap { font-size: .75rem; color: var(--ink-soft); }
+
+.solved-list { display: flex; flex-direction: column; gap: .6rem; }
+.solved-item {
+  background: var(--paper-2);
+  border: 2px solid var(--line);
+  border-radius: 10px;
+  padding: .6rem .8rem;
+}
+.solved-item .si-head { display: flex; justify-content: space-between; font-size: .78rem; color: var(--ink-soft); }
+.solved-item .si-title { font-size: .98rem; margin-top: .2rem; }
+.solved-item .si-answer { font-size: .9rem; color: var(--accent); margin-top: .2rem; }
+.rating-list { display: flex; flex-direction: column; gap: .35rem; }
+.rating-row {
+  display: flex; align-items: center; gap: .6rem;
+  padding: .45rem .6rem;
+  background: var(--paper-2);
+  border-radius: 8px;
+  font-size: .92rem;
+}
+.rating-row.me { border: 2px solid var(--accent); }
+.rating-row img { flex: 0 0 auto; }
+.rating-pos { width: 2rem; font-family: 'Yeseva One', serif; color: var(--accent); }
+.profile-bottom { margin-top: 1.6rem; text-align: center; }
+
+/* ---------- ТЕМЫ ---------- */
+.theme-row { display: flex; gap: .6rem; margin: .4rem 0 1rem; }
+.theme-swatch {
+  flex: 1 1 6rem;
+  border: 3px solid var(--line);
+  border-radius: 10px;
+  padding: .6rem .3rem;
+  font-family: 'PT Serif', serif;
+  font-size: .9rem;
+  cursor: pointer;
+  background: var(--paper);
+  color: var(--ink);
+}
+.theme-swatch.active { border-color: var(--accent); font-weight: 700; }
+
+/* ---------- ИНСТРУКЦИЯ ---------- */
+.field-hint {
+  display: block;
+  font-size: .8rem;
+  color: var(--ink-soft);
+  font-style: normal;
+  margin-top: .3rem;
+}
+.field-hint.error { color: #c0392b; font-weight: 700; }
+
+#howText { line-height: 1.6; }
+#howText p { margin: 0 0 .5rem; }
+#howText b { color: var(--accent); }
+
+.help-list { display: flex; flex-direction: column; gap: .5rem; }
+.help-item {
+  background: var(--paper-2);
+  border: 2px solid var(--line);
+  border-radius: 10px;
+  padding: .6rem .8rem;
+}
+.help-q { font-weight: 700; color: var(--accent); font-family: 'PT Serif', serif; }
+.help-a { font-size: .9rem; margin-top: .15rem; }
+
+/* ---------- ОТДЫХ ДЛЯ ГЛАЗ ---------- */
+.rest {
+  position: fixed;
+  inset: 0;
+  background: rgba(0,0,0,.72);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 100;
+  padding: 1rem;
+}
+.rest-card {
+  background: var(--paper);
+  color: var(--ink);
+  border: 4px solid var(--accent);
+  border-radius: 20px;
+  padding: 1.6rem 1.4rem;
+  max-width: 30rem;
+  width: 100%;
+  text-align: center;
+}
+.rest-ico { font-size: 3rem; line-height: 1; }
+.rest-card h2 {
+  font-family: 'Yeseva One', serif;
+  font-size: 1.5rem;
+  color: var(--accent);
+  margin: .4rem 0 .6rem;
+}
+.rest-text { margin: 0 0 1rem; }
+.rest-timer {
+  font-family: 'Yeseva One', serif;
+  font-size: 3rem;
+  color: var(--accent);
+  line-height: 1.1;
+}
+.rest-actions {
+  display: flex;
+  flex-direction: column;
+  gap: .6rem;
+  align-items: center;
+  margin-top: 1rem;
+}
+
+/* ---------- УВЕДОМЛЕНИЕ ---------- */
+.toast {
+  position: fixed;
+  left: 50%;
+  bottom: 5.5rem;
+  transform: translateX(-50%);
+  background: var(--accent);
+  color: #fff;
+  padding: .6em 1.1em;
+  border-radius: 999px;
+  font-size: .92rem;
+  z-index: 60;
+  box-shadow: 0 6px 18px rgba(0,0,0,.3);
+}
+
+/* ---------- МЕЛКИЕ ЭКРАНЫ ---------- */
+.moves-hint {
+  text-align: center;
+  font-size: .95rem;
+  color: var(--ink-soft);
+  margin: 0 auto .8rem;
+  max-width: 30rem;
+}
+.moves-hint b { color: var(--ink); }
+/* ---------- ТЕНИ (добавлены, чтобы элементы «стояли» над бумагой) ---------- */
+/* поле для ответа и ввод */
+.field input[type="text"] {
+  box-shadow: inset 0 2px 4px rgba(90,70,30,.14), var(--shadow-soft);
+}
+/* поле для ответа и ввод */
+.field input[type="text"] {
+  box-shadow: inset 0 1px 3px rgba(90,70,30,.10);
+}
+
+
+/* кнопки уровней и мелкие кнопки */
+.big-btn {
+  box-shadow: 0 3px 0 var(--accent), var(--shadow-pop);
+}
+.big-btn:active {
+  transform: translateY(2px);
+  box-shadow: 0 1px 0 var(--accent), 0 2px 8px rgba(80,60,25,.2);
+}
+.back-btn {
+  box-shadow: var(--shadow-soft);
+}
+.back-btn:active { transform: translateY(1px); }
+
+/* карточки меню: тень чуть глубже */
+.task-card { box-shadow: var(--shadow-card), 0 1px 0 rgba(255,255,255,.5) inset; }
+
+/* шахматная доска */
+.chessboard {
+  box-shadow: 0 14px 34px rgba(60,45,15,.34), 0 3px 6px rgba(60,45,15,.2);
+}
+
+/* клетки судоку и сапёра */
+.sudoku .cell, .mines-area .mcell {
+  box-shadow: var(--shadow-cell);
+}
+
+/* окно отдыха для глаз */
+.eye-rest, .rest-window, #eyeRest {
+  box-shadow: 0 20px 50px rgba(0,0,0,.45);
+}
+
+/* всплывающая подсказка */
+.toast {
+  box-shadow: var(--shadow-pop);
+}
+
+/* ряд с цифрами в задаче «закономерность» */
+.seq-line {
+  display: inline-block;
+  padding: .25em .7em;
+  background: rgba(255,255,255,.45);
+  border-radius: 12px;
+  box-shadow: var(--shadow-soft);
+}
+/* ---------- ЗАДАЧА ДНЯ И ВОЗВРАТ К ОШИБКАМ ---------- */
+.card-daily {
+  background-image:
+    linear-gradient(to bottom, rgba(255,255,255,.5), rgba(255,255,255,.2)),
+    repeating-linear-gradient(to bottom, transparent 0, transparent calc(var(--line-h) - 1px),
+      var(--line-soft) calc(var(--line-h) - 1px), var(--line-soft) var(--line-h));
+  border-width: 2px;
+}
+.card-daily h3 { color: var(--accent); }
+.card-misses h3 { color: var(--accent); }
+.level-btn.wide { flex: 1 1 100%; }
+.level-btn.active { background: var(--accent); color: var(--paper); }
+
+/* ---------- ПОДСКАЗКА ---------- */
+.hint-cell {
+  outline: 3px solid var(--accent);
+  outline-offset: -3px;
+}
+
+/* ---------- ПАПКА «МОИ ЗАДАЧИ» ---------- */
+.filter-row { display: flex; flex-wrap: wrap; gap: .4rem; margin-bottom: .8rem; }
+.si-actions { margin: .4rem 0 0; display: flex; gap: 1rem; }
+/* ---------- ПЕЙЗАЖ НА ФОНЕ ЗАДАЧИ ---------- */
+.game-screen { position: relative; }
+.game-bg {
+  position: absolute;
+  top: 0; left: 0; right: 0;
+  height: 100%;
+  background-image: var(--photo, none), linear-gradient(to bottom, var(--bg-sky), var(--bg-ground));
+  background-size: cover;
+  background-position: center 30%;
+  background-repeat: no-repeat;
+  z-index: 0;
+  pointer-events: none;
+}
+/* затемнение: от темы, чтобы бумага и текст читались */
+.game-bg::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: var(--screen-shade);
+}
+.game-screen > *:not(.game-bg) { position: relative; z-index: 1; }
+/* ---------- КРУПНЫЕ КНОПКИ В ПРОФИЛЕ ----------
+   В профиле всё крупное: пенсионеру проще нажать большую кнопку,
+   чем тонкую строчку-ссылку. */
+.paper-screen .link-btn,
+.profile-bottom .link-btn {
+  font-size: 1.05rem;
+  padding: .7em 1.1em;
+  min-height: 2.9rem;
+  text-decoration: none;
+  border: 2px solid var(--accent);
+  border-radius: 999px;
+  background: var(--paper);
+  color: var(--accent);
+  box-shadow: 0 2px 0 var(--accent);
+  display: inline-flex;
+  align-items: center;
+  gap: .3em;
+}
+.paper-screen .link-btn:active,
+.profile-bottom .link-btn:active {
+  transform: translateY(2px);
+  box-shadow: 0 0 0 var(--accent);
+}
+.link-btn.danger {
+  color: #a5342f;
+  border-color: #a5342f;
+  box-shadow: 0 2px 0 #a5342f;
+}
+.link-btn.danger:active { box-shadow: 0 0 0 #a5342f; }
+
+/* переключатели тем — тоже крупнее */
+.theme-swatch {
+  font-size: 1rem;
+  padding: .7em .9em;
+  min-height: 2.9rem;
+}
+/* ползунок размера шрифта — толстый и с большим «пальцем» */
+.paper-screen .field input[type="range"] {
+  -webkit-appearance: none;
+  appearance: none;
+  width: 100%;
+  height: 2.8rem;
+  background: transparent;
+  cursor: pointer;
+}
+.paper-screen .field input[type="range"]::-webkit-slider-runnable-track {
+  height: .8rem;
+  background: var(--paper-2);
+  border: 2px solid var(--line);
+  border-radius: 999px;
+}
+.paper-screen .field input[type="range"]::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  width: 2rem;
+  height: 2rem;
+  margin-top: -.7rem;
+  background: var(--accent);
+  border: 3px solid var(--paper);
+  border-radius: 50%;
+  box-shadow: 0 2px 5px rgba(0,0,0,.35);
+}
+.paper-screen .field input[type="range"]::-moz-range-track {
+  height: .8rem;
+  background: var(--paper-2);
+  border: 2px solid var(--line);
+  border-radius: 999px;
+}
+.paper-screen .field input[type="range"]::-moz-range-thumb {
+  width: 2rem;
+  height: 2rem;
+  background: var(--accent);
+  border: 3px solid var(--paper);
+  border-radius: 50%;
+  box-shadow: 0 2px 5px rgba(0,0,0,.35);
+}
+
+/* строки настроек: каждая кнопка на всю ширину, чтобы не промахнуться */
+.settings-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: .6rem;
+  margin: .4rem 0 .2rem;
+}
+.settings-row .link-btn { flex: 1 1 12rem; justify-content: center; }
+
+.form-cap {
+  font-size: .85rem;
+  color: var(--ink-soft);
+  margin: .9rem 0 .35rem;
+}
+.pick-row { display: flex; gap: .5rem; flex-wrap: wrap; }
+.pick-btn {
+  flex: 1 1 6rem;
+  font-family: 'PT Serif', serif;
+  font-size: 1rem;
+  padding: .6em .4em;
+  border: 2px solid var(--accent);
+  border-radius: 12px;
+  background: var(--paper);
+  color: var(--ink);
+  cursor: pointer;
+  box-shadow: 0 2px 0 var(--accent);
+}
+.pick-btn.active {
+  background: var(--accent);
+  color: var(--paper);
+  box-shadow: 0 1px 0 var(--accent);
+}
+.pick-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(3.2rem, 1fr));
+  gap: .5rem;
+}
+.pick-cell {
+  font-size: 1.9rem;
+  line-height: 1.2;
+  padding: .35em 0;
+  border: 2px solid var(--line);
+  border-radius: 14px;
+  background: var(--paper);
+  cursor: pointer;
+  box-shadow: 0 2px 5px rgba(80,60,25,.14);
+}
+.pick-cell.active {
+  border-color: var(--accent);
+  background: var(--paper-2);
+  box-shadow: 0 0 0 3px var(--accent), 0 2px 6px rgba(80,60,25,.18);
+}
+.avatar-big {
+  font-size: 3rem;
+  width: 3.6rem;
+  height: 3.6rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: 2px solid var(--accent);
+  border-radius: 50%;
+  background: var(--paper);
+  box-shadow: var(--shadow-soft);
+}
+.ava-emoji { font-size: 2.6rem; line-height: 1; }
+.ava-emoji.small { font-size: 1.5rem; }
+.nav-avatar-img .ava-emoji { font-size: 1.6rem; }
+/* ---------- АВАТАРКА ВСЕГДА В КРУГЕ ---------- */
+.ava-emoji, .avatar-big, .profile-avatar, .nav-avatar-img, .pick-cell {
+  overflow: hidden;
+}
+.ava-emoji {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  line-height: 1;
+  max-width: 100%;
+}
+.avatar-big {
+  font-size: 2.1rem;      /* значок меньше круга, чтобы не вылезал */
+  line-height: 1;
+  flex: 0 0 3.6rem;
+}
+.avatar-big .ava-emoji, .profile-avatar .ava-emoji, .nav-avatar-img .ava-emoji {
+  font-size: 1em;
+  line-height: 1;
+}
+.profile-avatar .ava-emoji { font-size: 2.4rem; }
+.nav-avatar-img .ava-emoji { font-size: 1.5rem; }
+.pick-cell { line-height: 1.15; }
+/* ---------- ОКНО ПОДТВЕРЖДЕНИЯ ---------- */
+.ask {
+  position: fixed;
+  inset: 0;
+  background: rgba(40, 30, 10, .55);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 1rem;
+  z-index: 120;
+}
+.ask-card {
+  background: var(--paper);
+  border: 2px solid var(--accent);
+  border-radius: var(--radius);
+  box-shadow: 0 20px 44px rgba(0,0,0,.4);
+  padding: 1.2rem 1.2rem 1.4rem;
+  max-width: 26rem;
+  width: 100%;
+  text-align: center;
+}
+.ask-title {
+  font-family: 'Yeseva One', serif;
+  font-size: 1.25rem;
+  color: var(--accent);
+  margin: 0 0 .6rem;
+}
+.ask-text { margin: 0 0 1rem; color: var(--ink); }
+.ask-row { display: flex; gap: .6rem; justify-content: center; flex-wrap: wrap; }
+.ask-row .big-btn { flex: 1 1 8rem; }
+.ask-no {
+  background: var(--paper-2);
+  color: var(--ink);
+  border-color: var(--line);
+  box-shadow: 0 3px 0 var(--line);
+}
+.ask-no:active { box-shadow: 0 1px 0 var(--line); }
+/* ---------- КРУПНЫЕ КНОПКИ ПОД ЗАДАЧЕЙ ---------- */
+.game-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: .6rem;
+  margin: .8rem 0 .4rem;
+}
+.game-actions .link-btn {
+  font-size: 1.02rem;
+  text-decoration: none;
+  border: 2px solid var(--accent);
+  border-radius: 999px;
+  background: var(--paper);
+  color: var(--accent);
+  box-shadow: 0 2px 0 var(--accent);
+  display: inline-flex;
+  align-items: center;
+  min-height: 2.7rem;
+  padding: .5em 1em;
+}
+.game-actions .link-btn:active { transform: translateY(2px); box-shadow: none; }
+/* ---------- ОСЕННИЕ ДЕРЕВЬЯ НА ФОНЕ ГЛАВНОГО ЭКРАНА ----------
+   Фото подменяются скриптом, подписи нет. Поверх — лёгкое
+   затемнение темы, чтобы карточки задач читались. */
+.main-screen { position: relative; }
+.main-bg {
+  position: fixed;
+  inset: 0;
+  z-index: 0;
+  background-image:
+    linear-gradient(to bottom, var(--screen-shade), var(--screen-shade));
+  background-color: var(--bg-sky);
+  background-size: cover;
+  background-position: center;
+  transition: background-image .9s ease;
+  opacity: 0;
+}
+.main-bg.ready {
+  background-image:
+    linear-gradient(to bottom, var(--screen-shade), var(--screen-shade)),
+    var(--autumn);
+  opacity: 1;
+}
+/* содержимое главного экрана — поверх фото */
+.main-screen .main-inner { position: relative; z-index: 1; }
+
+/* ---------- ПОДВАЛ С ПОЛИТИКОЙ ---------- */
+.main-footer {
+  margin-top: 2rem;
+  padding: 1rem 1.1rem;
+  background: var(--paper);
+  border: 2px solid var(--line);
+  border-radius: var(--radius);
+  box-shadow: var(--shadow-card);
+  font-size: .92rem;
+  color: var(--ink-soft);
+}
+.main-footer h3 {
+  margin: 0 0 .4rem;
+  font-family: 'Yeseva One', serif;
+  font-size: 1.05rem;
+  color: var(--accent);
+}
+.main-footer p { margin: 0; }
+
+/* ---------- КНОПКИ ШРИФТА В ШАПКЕ ЗАДАЧИ ---------- */
+.game-head .font-plus {
+  font-size: .95rem;
+  padding: .5em .9em;
+  min-height: 2.6rem;
+  background: var(--btn);
+  color: var(--btn-ink);
+  border-color: var(--accent);
+  box-shadow: 0 2px 0 var(--accent);
+}
+.game-head .font-plus:disabled {
+  opacity: .55;
+  cursor: default;
+  box-shadow: none;
+}
+
+/* мелкая строка под политикой */
+.main-footer-small {
+  margin-top: .5rem !important;
+  font-size: .86rem;
+  font-style: italic;
+  color: var(--ink-soft);
+}
+
+/* ---------- ЭКРАН СОГЛАСИЯ С ПОЛИТИКОЙ ---------- */
+#screenAgree .sheet-title { margin-top: .6rem; }
+#agreeBtn {
+  width: 100%;
+  margin-top: 1rem;
+  line-height: 1.35;
+  font-size: 1rem;
+  padding: .9em 1em;
+}
+
+/* ---------- ТЕЛЕФОН ----------
+   На узком экране шапка с двумя кнопками шрифта не помещалась и
+   растягивала страницу на 70 пикселей — всё «разъезжалось» вбок.
+   Здесь кнопки становятся компактными, шапка переносится, игровые
+   поля получают всю ширину, а клетки — размер, в который реально
+   можно попасть пальцем. */
+@media (max-width: 34rem) {
+  /* шапка задачи: кнопки шрифта переносятся под заголовок,
+     чтобы не накрывать ни его, ни подпись уровня, ни доску */
+  .game-head { flex-wrap: wrap; gap: .4rem .5rem; }
+  .game-head-text { flex: 1 1 auto; min-width: 0; }
+  .game-head .back-btn { flex: 0 0 auto; }
+  .font-tools { flex: 1 1 100%; gap: .5rem; }
+  .font-tools .link-btn {
+    flex: 1 1 0;
+    min-width: 0;
+    justify-content: center;
+    font-size: .9rem;
+    padding: .5em .3em;
+    min-height: 2.5rem;
+  }
+
+  /* отступы плотнее — влезает больше */
+  .screen { padding: .7rem .5rem 1rem; }
+  .game-title { font-size: 1.1rem; }
+  .game-level { font-size: .75rem; }
+
+  /* У тетради слева широкое «поле» для заметок (50px). Из-за него
+     доска, судоку и сапёр уезжали вправо и становились мелкими.
+     На телефоне поле убираем, полоска остаётся тонкой. */
+  .sheet, .game-sheet { padding-left: 1.1rem; }
+
+  /* игровые поля занимают всю ширину */
+  .sudoku, .mines, .chess-wrap, .match-row, .numpad {
+    width: 100%;
+    max-width: none;
+  }
+  .match-row { justify-content: center; gap: .1rem; }
+  .match-op { padding: 0 .15rem; }
+  .moves-hint { padding: 0 .3rem; }
+
+  /* судоку и сапёр: клетки крупнее */
+  .sudoku, .mines { gap: 1px; border-width: 2px; }
+  .sudoku .cell { font-size: 1rem; }
+  /* цифры в два ряда, зато крупные — попадать пальцем */
+  .numpad { gap: .3rem; }
+  .numpad button { width: 2.8rem; height: 2.8rem; font-size: 1.15rem; }
+
+  /* спички: цифры крупнее, спичка попадает под палец */
+  .match-row .digit svg { width: 40px; height: 70px; }
+
+  /* нижняя панель */
+  .nav-item { padding: .2rem .3rem; }
+  .nav-cap { font-size: .68rem; }
+  .nav-ico { font-size: 1.25rem; }
+  .nav-avatar-img { width: 2.1rem; height: 2.1rem; flex-basis: 2.1rem; min-width: 2.1rem; }
+
+  /* Переключатели тем не влезали в строку и растягивали профиль
+     до 578px: четыре кнопки по 117px плюс промежутки. Переносим. */
+  .theme-row { flex-wrap: wrap; }
+  .theme-swatch { flex: 1 1 6.5rem; }
+  .stat-row { flex-wrap: wrap; }
+  /* кнопки уровней не сжимаются в ниточку */
+  .level-row { gap: .3rem; }
+  .level-btn { padding: .7em .25em; }
+  .stat { flex: 1 1 6rem; }
+  .task-card { padding: .8rem; }
+  .main-note, .main-footer { font-size: .85rem; }
+}
+
+/* совсем узкие телефоны (до 360px) */
+@media (max-width: 21rem) {
+  .font-tools .link-btn { font-size: .8rem; }
+  .match-row .digit svg { width: 34px; height: 60px; }
+  .numpad button { width: 2.5rem; height: 2.5rem; font-size: 1.05rem; }
+  .game-title { font-size: 1rem; }
+}
+
+/* ---------- ФИГУРЫ ЛУЧШЕ ВИДНЫ НА СВЕТЛЫХ КЛЕТКАХ ----------
+   На телефоне клетка маленькая, и белая фигура на светлой клетке
+   сливалась: был виден только контур, а сама фигура пропадала.
+   Теперь у белых фигур тёмная обводка со всех сторон, а у чёрных —
+   светлая. Читается на любой клетке и при любом размере. */
+.cpiece.white,
+.cpiece.outline.white {
+  color: #fdfdfe;
+  -webkit-text-stroke: 1.4px #12161c;
+  paint-order: stroke fill;
+  text-shadow: 0 1px 2px rgba(0,0,0,.55);
+}
+.cpiece.black,
+.cpiece.outline.black {
+  color: #14171c;
+  -webkit-text-stroke: 1.2px rgba(255,255,255,.85);
+  paint-order: stroke fill;
+  text-shadow: 0 1px 2px rgba(0,0,0,.45);
+}
+
+/* ---------- САПЁР НА УЗКОМ ЭКРАНЕ ----------
+   В «сложном» режиме поле состоит из 14 столбцов, и на телефоне оно
+   не помещается: клетки сжимались до 16 пикселей, в такую клетку
+   невозможно попасть. Теперь клетка не меньше 1.55rem, а само поле
+   прокручивается вбок — и под ним висит подсказка про это. */
+.mines-scroll {
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+}
+.mines-scroll-note {
+  margin: .5rem 0 0;
+  text-align: center;
+  font-size: .85rem;
+  line-height: 1.3;
+  color: var(--ink-soft);
+}
+.mines-scroll-note::before {
+  content: '';
+  display: block;
+  width: 2.2rem;
+  height: 2px;
+  margin: 0 auto .4rem;
+  background: var(--accent);
+  opacity: .45;
+}
+/* =============================================================
+   ФРАНЦУЗСКИЙ — оформление
+   Всё крупное и с большими отступами: бабушка должна попасть
+   пальцем и не промахнуться.
+   ============================================================= */
+
+.fr-area {
+  max-width: 680px;
+  margin: 0 auto;
+  padding: 8px 4px 24px;
+  text-align: center;
+}
+
+/* --- приветствие и счётчики --- */
+.fr-hello { margin: 10px 0 20px; }
+.fr-hello h1 {
+  font-size: 1.9rem;
+  margin: 0 0 6px;
+  color: #7a5c17;
+}
+.fr-sub {
+  font-size: 1.05rem;
+  margin: 0 0 14px;
+  opacity: .85;
+  line-height: 1.4;
+}
+.fr-counters {
+  display: flex;
+  gap: 10px;
+  justify-content: center;
+  flex-wrap: wrap;
+}
+.fr-counter {
+  background: #fffdf6;
+  border: 2px solid #d8c9a8;
+  border-radius: 14px;
+  padding: 10px 16px;
+  min-width: 96px;
+}
+.fr-counter b {
+  display: block;
+  font-size: 1.8rem;
+  line-height: 1.1;
+  color: #7a5c17;
+}
+.fr-counter span { font-size: .9rem; opacity: .8; }
+
+/* --- полоска хода урока --- */
+.fr-progress {
+  height: 12px;
+  background: #e8dcc0;
+  border-radius: 999px;
+  overflow: hidden;
+  margin: 0 auto;
+  max-width: 420px;
+}
+.fr-progress i {
+  display: block;
+  height: 100%;
+  background: #c9a227;
+  transition: width .3s;
+}
+
+/* --- места в паспорте --- */
+.fr-place {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  width: 100%;
+  text-align: left;
+  font: inherit;
+  background: #fffdf6;
+  border: 2px solid #d8c9a8;
+  border-radius: 16px;
+  padding: 16px;
+  margin-bottom: 12px;
+  cursor: pointer;
+  min-height: 84px;
+}
+.fr-place:active { background: #f6ecd2; }
+.fr-place.locked { opacity: .55; cursor: default; }
+.fr-place.done { border-color: #7d9a5a; background: #f3f7e9; }
+.fr-place-emoji { font-size: 2.2rem; line-height: 1; }
+.fr-place-text { flex: 1; }
+.fr-place-text b { display: block; font-size: 1.3rem; }
+.fr-place-fr { display: block; font-size: .95rem; opacity: .65; font-style: italic; }
+.fr-place-sub { display: block; font-size: .95rem; opacity: .8; margin-top: 3px; }
+.fr-stamp {
+  font-size: 1.7rem;
+  color: #7d9a5a;
+  min-width: 34px;
+  text-align: center;
+}
+.fr-note {
+  font-size: .95rem;
+  opacity: .75;
+  margin: 16px 0 0;
+  line-height: 1.4;
+}
+
+/* --- карточка слова --- */
+.fr-word-card {
+  background: #fffdf6;
+  border: 3px solid #c9a227;
+  border-radius: 20px;
+  padding: 24px 16px;
+  margin-bottom: 18px;
+}
+.fr-word-emoji { font-size: 4rem; line-height: 1; }
+.fr-word-fr {
+  font-size: 2.6rem;
+  font-weight: bold;
+  margin: 10px 0 4px;
+  color: #7a5c17;
+  word-break: break-word;
+}
+.fr-word-ru { font-size: 1.3rem; opacity: .85; margin-bottom: 18px; }
+.fr-listen { width: 100%; font-size: 1.3rem; padding: 18px; }
+
+/* --- слова урока списком --- */
+.fr-wordlist {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  justify-content: center;
+  margin-bottom: 18px;
+}
+.fr-chip {
+  font: inherit;
+  font-size: 1.05rem;
+  background: #fffdf6;
+  border: 2px solid #d8c9a8;
+  border-radius: 999px;
+  padding: 10px 16px;
+  min-height: 52px;
+  cursor: pointer;
+}
+.fr-chip b { margin-right: 6px; }
+.fr-chip span { opacity: .7; font-size: .95rem; }
+.fr-chip.known { background: #f3f7e9; border-color: #7d9a5a; }
+
+/* --- сценка --- */
+.fr-scene {
+  background: #fffdf6;
+  border: 2px solid #d8c9a8;
+  border-radius: 16px;
+  padding: 10px;
+  margin-bottom: 18px;
+  text-align: left;
+}
+.fr-line {
+  display: block;
+  width: 100%;
+  font: inherit;
+  text-align: left;
+  background: transparent;
+  border: none;
+  border-bottom: 1px dashed #e0d4b4;
+  padding: 14px 10px;
+  min-height: 64px;
+  cursor: pointer;
+}
+.fr-line:last-child { border-bottom: none; }
+.fr-line:active { background: #f6ecd2; }
+.fr-line-fr { display: block; font-size: 1.15rem; }
+.fr-line-ru { display: block; font-size: 1rem; opacity: .75; margin-top: 2px; }
+
+/* --- ответы в проверке --- */
+.fr-opts { display: flex; flex-direction: column; gap: 12px; }
+.fr-opt {
+  font-size: 1.4rem;
+  padding: 18px;
+  min-height: 76px;
+}
+.fr-opt span { display: block; font-size: .95rem; opacity: .7; margin-top: 4px; }
+.fr-opt.right { background: #d8ecc8; border-color: #4d7c2f; }
+.fr-opt.wrong { background: #f6dcdc; border-color: #a33; }
+.fr-verdict {
+  min-height: 60px;
+  margin-top: 14px;
+  font-size: 1.2rem;
+}
+.fr-verdict.ok { color: #3c6b1f; }
+.fr-verdict.no { color: #a33; }
+
+/* --- итог урока --- */
+.fr-card {
+  background: #fffdf6;
+  border: 2px solid #d8c9a8;
+  border-radius: 16px;
+  padding: 18px;
+  margin-bottom: 16px;
+  text-align: left;
+}
+.fr-card h2 { margin: 0 0 10px; font-size: 1.3rem; }
+.fr-learned { list-style: none; margin: 0; padding: 0; }
+.fr-learned li {
+  display: flex;
+  justify-content: space-between;
+  gap: 10px;
+  padding: 10px 0;
+  border-bottom: 1px dashed #e0d4b4;
+  font-size: 1.15rem;
+}
+.fr-learned li:last-child { border-bottom: none; }
+.fr-learned span { opacity: .75; text-align: right; }
+.fr-bigcounter { text-align: center; }
+.fr-bigcounter b { display: block; font-size: 3rem; color: #7a5c17; line-height: 1.1; }
+.fr-bigcounter span { font-size: 1.1rem; opacity: .85; }
+.fr-praise {
+  text-align: center;
+  font-size: 1.05rem;
+  color: #4d7c2f;
+  margin: 12px 0 0;
+  line-height: 1.4;
+}
+.fr-next { width: 100%; font-size: 1.3rem; padding: 18px; margin-top: 6px; }
+.fr-passport { display: block; margin: 14px auto 0; font-size: 1.1rem; }
+
+/* на телефоне: поля поменьше, но кнопки всё так же крупные */
+@media (max-width: 34rem) {
+  .fr-area { padding: 4px 2px 20px; }
+  .fr-hello h1 { font-size: 1.6rem; }
+  .fr-word-fr { font-size: 2.2rem; }
+  .fr-word-emoji { font-size: 3.2rem; }
+  .fr-place { padding: 14px; min-height: 78px; }
+  .fr-place-text b { font-size: 1.15rem; }
+  .fr-chip { font-size: 1rem; padding: 9px 14px; min-height: 50px; }
+  .fr-line { padding: 12px 8px; }
+  .fr-bigcounter b { font-size: 2.5rem; }
+}
+/* Предупреждение, если в телефоне нет французского голоса.
+   Без него раздел молчал бы: карточки есть, а звука нет.
+   Подсказка объясняет, что делать, и не пугает. */
+.fr-nowarn {
+  background: #fdf0d5;
+  border: 2px solid #d8a03a;
+  border-radius: 12px;
+  padding: 14px;
+  margin: 10px 0;
+  font-size: 1rem;
+  line-height: 1.4;
+  text-align: left;
+}
+.fr-nowarn b { display: block; margin-bottom: 6px; }
+/* ---------- ФРАНЦУЗСКИЙ АЛФАВИТ ---------- */
+.fr-place.alphabet { border-color: #7d9a5a; }
+
+.fr-letter-card {
+  background: #fffdf6;
+  border: 3px solid #7d9a5a;
+  border-radius: 20px;
+  padding: 20px 16px;
+  margin-bottom: 16px;
+}
+.fr-letter-big {
+  font-size: 5rem;
+  font-weight: bold;
+  line-height: 1.1;
+  color: #4d7c2f;
+  letter-spacing: .05em;
+}
+.fr-letter-ru {
+  font-size: 1.15rem;
+  opacity: .8;
+  margin: 6px 0 16px;
+}
+
+/* слово-пример: именно его бабушка услышит */
+.fr-example {
+  background: #f3f7e9;
+  border: 2px solid #b8cf9a;
+  border-radius: 16px;
+  padding: 18px 14px;
+  margin-bottom: 16px;
+  text-align: center;
+}
+.fr-example.small { padding: 12px; margin-bottom: 12px; }
+.fr-example-emoji { font-size: 2.6rem; line-height: 1; }
+.fr-example.small .fr-example-emoji { font-size: 2rem; }
+.fr-example-word {
+  font-size: 2rem;
+  font-weight: bold;
+  color: #4d7c2f;
+  margin: 6px 0 2px;
+}
+.fr-example.small .fr-example-word { font-size: 1.7rem; }
+.fr-example-ru { font-size: 1.1rem; opacity: .8; }
+
+.fr-letterlist {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  justify-content: center;
+  margin-bottom: 16px;
+}
+.fr-lchip {
+  font: inherit;
+  font-size: 1.3rem;
+  font-weight: bold;
+  color: #4d7c2f;
+  background: #fffdf6;
+  border: 2px solid #b8cf9a;
+  border-radius: 12px;
+  padding: 10px 12px;
+  min-width: 52px;
+  min-height: 52px;
+  cursor: pointer;
+}
+.fr-lchip.now { background: #f3f7e9; border-color: #4d7c2f; }
+.fr-lchip:active { background: #e8f0d8; }
+
+.fr-letters-opts {
+  display: flex;
+  justify-content: center;
+  gap: 12px;
+  flex-wrap: wrap;
+  margin-bottom: 10px;
+}
+.fr-lopt {
+  font-size: 2.2rem;
+  font-weight: bold;
+  padding: 16px 26px;
+  min-height: 84px;
+  min-width: 92px;
+}
+.fr-lopt.right { background: #d8ecc8; border-color: #4d7c2f; }
+.fr-lopt.wrong { background: #f6dcdc; border-color: #a33; }
+
+@media (max-width: 34rem) {
+  .fr-letter-big { font-size: 4rem; }
+  .fr-example-word { font-size: 1.7rem; }
+  .fr-example.small .fr-example-word { font-size: 1.5rem; }
+  .fr-lchip { font-size: 1.15rem; min-width: 46px; min-height: 46px; padding: 8px 10px; }
+  .fr-lopt { font-size: 1.8rem; min-height: 72px; min-width: 78px; padding: 12px 18px; }
+}
+/* ---------- ЗЕРКАЛО: тренировка речи вслух ---------- */
+.fr-mirror-list {
+  background: #fffdf6;
+  border: 2px solid #d8c9a8;
+  border-radius: 16px;
+  padding: 8px;
+  margin-bottom: 18px;
+}
+.fr-mirror-row {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  width: 100%;
+  font: inherit;
+  text-align: left;
+  background: transparent;
+  border: none;
+  border-bottom: 1px dashed #e0d4b4;
+  padding: 16px 10px;
+  min-height: 68px;
+  cursor: pointer;
+}
+.fr-mirror-row:last-child { border-bottom: none; }
+.fr-mirror-row:active { background: #f6ecd2; }
+.fr-mirror-word { font-size: 1.35rem; font-weight: bold; min-width: 96px; }
+.fr-mirror-ru { flex: 1; font-size: 1rem; opacity: .75; }
+.fr-mirror-play { font-size: 1.5rem; }
+
+.fr-mirror-remind {
+  text-align: left;
+  font-size: 1.02rem;
+  line-height: 1.45;
+  background: #f3f0e4;
+  border-left: 5px solid #c9a227;
+  border-radius: 8px;
+  padding: 12px 14px;
+  margin: 14px 0 0;
+}
+
+/* ---------- ВИДЕО ---------- */
+.fr-place.videos-card { border-color: #a9738c; }
+.fr-place.videos-card:active { background: #fbeef3; }
+
+.fr-videos-empty { text-align: center; }
+.fr-empty-emoji { font-size: 3.4rem; line-height: 1; }
+.fr-videos-empty h2 { margin: 8px 0; font-size: 1.35rem; }
+.fr-videos-empty p { font-size: 1.05rem; line-height: 1.45; opacity: .85; }
+
+.fr-video-card {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  width: 100%;
+  font: inherit;
+  text-align: left;
+  background: #fffdf6;
+  border: 2px solid #d8c9a8;
+  border-radius: 16px;
+  padding: 16px;
+  margin-bottom: 12px;
+  min-height: 84px;
+  cursor: pointer;
+}
+.fr-video-card:active { background: #fbeef3; }
+.fr-video-play {
+  font-size: 1.6rem;
+  width: 52px;
+  height: 52px;
+  border-radius: 50%;
+  background: #a9738c;
+  color: #fff;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex: 0 0 52px;
+}
+.fr-video-text b { display: block; font-size: 1.25rem; }
+.fr-video-text span { display: block; font-size: 1rem; opacity: .75; margin-top: 2px; }
+
+/* Плеер: на телефоне видео должно помещаться в ширину */
+.fr-video-frame {
+  position: relative;
+  width: 100%;
+  padding-bottom: 56.25%;   /* 16:9 */
+  height: 0;
+  overflow: hidden;
+  border-radius: 14px;
+  margin-bottom: 18px;
+  background: #000;
+}
+.fr-video-frame iframe {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  border: 0;
+}
+
+@media (max-width: 34rem) {
+  .fr-mirror-word { font-size: 1.2rem; min-width: 84px; }
+  .fr-mirror-ru { font-size: .95rem; }
+  .fr-video-play { width: 46px; height: 46px; flex-basis: 46px; font-size: 1.3rem; }
+}
+/* Кнопка «Смотреть видео» — большая, под палец. Это обычная ссылка,
+   оформленная как наша кнопка: Яндекс Видео не даёт встраивать ролик
+   в чужую страницу, поэтому видео открывается в новой вкладке. */
+.fr-open-video {
+  display: block;
+  width: 100%;
+  text-align: center;
+  text-decoration: none;
+  font-size: 1.3rem;
+  padding: 20px;
+  min-height: 84px;
+  margin-bottom: 10px;
+}
+.fr-open-video:active { background: #e8c98a; }
+
+/* ---------- ЭКРАН БУКВЫ: произношение буквы и слова ---------- */
+.fr-letter-name {
+  font-size: 1.5rem;
+  margin: 6px 0 2px;
+}
+.fr-letter-name span {
+  font-size: 1rem;
+  opacity: .7;
+  display: block;
+}
+.fr-letter-card .fr-letter-ru {
+  font-size: 1.1rem;
+  opacity: .85;
+  margin-top: 4px;
+}
+
+/* две кнопки рядом: «Буква» и «Слово» */
+.fr-two-btns {
+  display: flex;
+  gap: 10px;
+  margin: 0 0 14px;
+}
+.fr-two-btns .big-btn {
+  flex: 1 1 0;
+  width: auto;
+  min-height: 72px;
+  font-size: 1.15rem;
+  padding: 14px 8px;
+}
+.fr-two-btns .fr-listen.alt {
+  background: #cfe3d6;
+  color: #23412c;
+}
+.fr-two-btns .fr-listen.alt:active { background: #b6d3c0; }
+
+/* значок: буква молчит или, наоборот, звонко читается */
+.fr-badge {
+  display: inline-block;
+  margin-top: 8px;
+  padding: 6px 14px;
+  border-radius: 999px;
+  font-size: 1rem;
+  font-weight: 600;
+}
+.fr-badge.quiet {
+  background: #ffe6c2;
+  color: #7a4a00;
+}
+.fr-badge.loud {
+  background: #d6ecff;
+  color: #12466e;
+}
+
+/* заметка про молчащие буквы — она и есть главная ценность урока */
+.fr-tip {
+  background: #fff6de;
+  border-left: 6px solid #e8b44a;
+  border-radius: 10px;
+  padding: 14px 16px;
+  margin-bottom: 14px;
+  font-size: 1.12rem;
+  line-height: 1.45;
+}
+
+@media (max-width: 34rem) {
+  .fr-two-btns { gap: 8px; }
+  .fr-two-btns .big-btn { font-size: 1.05rem; min-height: 74px; }
+  .fr-letter-name { font-size: 1.35rem; }
+  .fr-tip { font-size: 1.05rem; padding: 12px 13px; }
+}
+
+/* ---------- ГРАММАТИКА ---------- */
+.fr-gramlist {
+  display: block;
+  margin-bottom: 14px;
+}
+.fr-gramcard {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  width: 100%;
+  text-align: left;
+  background: #fff;
+  border: 2px solid #e3d3b4;
+  border-radius: 14px;
+  padding: 14px 16px;
+  margin-bottom: 10px;
+  min-height: 76px;
+  font-size: 1.05rem;
+}
+.fr-gramcard:active { background: #f6efe0; }
+.fr-gramcard.done { border-color: #c8a951; background: #fdf8ec; }
+.fr-gram-emoji {
+  font-size: 2rem;
+  flex: 0 0 auto;
+}
+.fr-gram-text {
+  flex: 1 1 auto;
+  min-width: 0;
+}
+.fr-gram-text b {
+  display: block;
+  font-size: 1.15rem;
+}
+.fr-gram-text span {
+  font-size: .95rem;
+  opacity: .7;
+}
+
+/* объяснение темы */
+.fr-idea {
+  font-size: 1.15rem;
+  line-height: 1.5;
+  margin: 0;
+}
+
+/* строки с фразами: широкие, под палец */
+.fr-gramrows {
+  margin-bottom: 14px;
+}
+.fr-gramrow {
+  display: block;
+  width: 100%;
+  text-align: left;
+  background: #f7fbff;
+  border: 2px solid #cfe0ef;
+  border-radius: 12px;
+  padding: 12px 46px 12px 14px;
+  margin-bottom: 8px;
+  position: relative;
+  min-height: 62px;
+}
+.fr-gramrow:active { background: #e4f0fa; }
+.fr-gramrow-fr {
+  display: block;
+  font-size: 1.2rem;
+  font-weight: 600;
+  color: #14395c;
+}
+.fr-gramrow-ru {
+  display: block;
+  font-size: 1rem;
+  opacity: .8;
+  margin-top: 2px;
+}
+.fr-gramrow-ic {
+  position: absolute;
+  right: 14px;
+  top: 50%;
+  transform: translateY(-50%);
+  font-size: 1.3rem;
+  opacity: .55;
+}
+
+@media (max-width: 34rem) {
+  .fr-gramrow-fr { font-size: 1.1rem; }
+  .fr-gramrow { padding: 12px 40px 12px 12px; }
+  .fr-idea { font-size: 1.08rem; }
+}
