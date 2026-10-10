@@ -19,6 +19,62 @@ function chIsCheck(g) { return g.in_check ? g.in_check() : g.isCheck(); }
 /* ---------------- служебное ---------------- */
 function chUci(sq) { return sq; }
 
+/* ---------------- короля брать НЕЛЬЗЯ ----------------
+   В шахматах нельзя ходить на поле короля и нельзя его съесть.
+   Короля побеждают шахом и матом, а не взятием.
+
+   Проблема: движок (эта версия chess.js) таких ходов не запрещает —
+   он спокойно предлагает «взять чёрного короля» ферзём. Если такое
+   принять за решение, получается задача-обманка: человек честно ищет
+   мат, а ему показывают позицию, где король уже висит и его можно
+   просто снять.
+
+   Поэтому:
+   1) isKingTake() отсекает ход, который убирает чёрного короля;
+   2) chBlackKingSafe() проверяет исходную позицию — чёрный король
+      не должен стоять под боем, пока ходят белые. */
+function chBlackKingSq(fen) {
+  const rows = String(fen).split(' ')[0].split('/');
+  for (let ri = 0; ri < rows.length; ri++) {
+    let f = 0;
+    for (let ci = 0; ci < rows[ri].length; ci++) {
+      const ch = rows[ri][ci];
+      if (/\d/.test(ch)) { f += parseInt(ch, 10); continue; }
+      if (ch === 'k') return 'abcdefgh'[f] + (8 - ri);
+      f++;
+    }
+  }
+  return null;
+}
+
+/* ход, который съедает чёрного короля — нелегальный */
+function isKingTake(game, san) {
+  const bk = chBlackKingSq(game.fen());
+  if (!bk) return true;                     /* короля нет — позиция битая */
+  try {
+    game.move(san);
+    const gone = !chBlackKingSq(game.fen());
+    game.undo();
+    return gone;
+  } catch (e) {
+    return true;
+  }
+}
+
+/* чёрный король не должен стоять под боем при ходе белых */
+function chBlackKingSafe(fen) {
+  const parts = String(fen).split(' ');
+  parts[1] = 'b';
+  let gb;
+  try { gb = new Chess(parts.join(' ')); } catch (e) { return false; }
+  return !chIsCheck(gb);
+}
+
+/* легальные ходы белых: без взятия короля */
+function chSafeMoves(game) {
+  return game.moves().filter(function (san) { return !isKingTake(game, san); });
+}
+
 function countPieces(game) {
   const b = game.board();
   let n = 0;
@@ -69,6 +125,7 @@ function chFindMate(game, depth, budget) {
   /* сперва мат сразу — самый дешёвый вариант */
   for (const san of moves) {
     budget.n--;
+    if (isKingTake(game, san)) continue;   /* взятие короля мат не считаем */
     game.move(san);
     const mate = chIsMate(game);
     game.undo();
@@ -79,6 +136,7 @@ function chFindMate(game, depth, budget) {
   let firstFound = null;
   for (const san of moves) {
     budget.n--;
+    if (isKingTake(game, san)) continue;   /* взятие короля — не решение */
     game.move(san);
     const sub = chFindMate(game, depth - 1, budget);
     game.undo();
@@ -558,6 +616,7 @@ function chBlackCoop(game, depth, budget) {
   const moves = game.moves();
   for (const san of moves) {
     if (budget.n-- <= 0) break;
+    if (isKingTake(game, san)) continue;   /* чёрные не могут взять короля */
     game.move(san);
     const sub = chWhiteMate(game, depth - 1, budget);
     game.undo();
@@ -576,6 +635,7 @@ function chWhiteMate(game, depth, budget) {
   const moves = game.moves();
   for (const san of moves) {
     if (budget.n-- <= 0) break;
+    if (isKingTake(game, san)) continue;   /* взятие короля — не ход */
     game.move(san);
     let sub = null;
     if (chIsMate(game)) sub = (game.turn() === 'b') ? [] : null;

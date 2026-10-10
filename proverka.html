@@ -1,121 +1,110 @@
-﻿<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="ru">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Проверка — Логические задачки</title>
 <style>
-body { font-family: Georgia, serif; background: #fdf6e3; color: #3a2d1f;
-       margin: 0; padding: 14px; font-size: 17px; line-height: 1.5; }
-h1 { font-size: 20px; margin: 0 0 4px; }
-p.lead { font-size: 14px; margin: 0 0 14px; }
-div.row { border: 1px solid #d8c9a8; border-left-width: 7px; border-radius: 8px;
-          padding: 9px 11px; margin-bottom: 8px; background: #fff; }
-.ok  { border-left-color: #2f7d32; }
-.bad { border-left-color: #c62828; }
-.mid { border-left-color: #f9a825; }
-b { display: block; font-size: 16px; }
-span.m { font-size: 14px; opacity: .85; display: block; margin-top: 2px; }
-a { color: #7a5c17; }
+  body { font-family: Georgia, serif; background: #fdf6e3; color: #3a2d1f;
+         margin: 0; padding: 14px; font-size: 17px; line-height: 1.5; }
+  h1 { font-size: 21px; margin: 0 0 4px; }
+  .lead { margin: 0 0 14px; font-size: 14px; opacity: .8; }
+  .row { border: 1px solid #d8c9a8; border-radius: 8px; padding: 9px 11px;
+         margin-bottom: 7px; background: #fff; word-break: break-all; }
+  .row b { display: block; font-size: 15px; }
+  .ok  { border-left: 6px solid #2f7d32; }
+  .bad { border-left: 6px solid #c62828; }
+  .wait{ border-left: 6px solid #f9a825; }
+  .msg { font-size: 14px; opacity: .85; margin-top: 3px; }
 </style>
 </head>
 <body>
 <h1>Проверка сайта</h1>
-<p class="lead">Эта страница только смотрит, что не так с телефоном. Ничего не
-ломает и ничего не записывает. Откройте её на том телефоне, где сайт не
-работает, и скажите, какие строки красные.</p>
+<p class="lead">Страница выясняет, что именно не работает на этом телефоне.
+Она ничего не ломает и ничего не записывает.</p>
 
-<div id="out"></div>
+<div id="log"></div>
 
 <script>
-/* Пишем только самым простым кодом (без стрелок и let/const), чтобы
-   страница работала даже на очень старом браузере. Иначе она сама
-   не запустится и ничего не покажет. */
 (function () {
-  var out = document.getElementById('out');
-  function row(cls, title, msg) {
+  var log = document.getElementById('log');
+  var t0 = Date.now();
+  function ms() { return (Date.now() - t0) + ' мс'; }
+  function add(state, title, msg) {
     var d = document.createElement('div');
-    d.className = 'row ' + cls;
-    d.innerHTML = '<b>' + title + '</b>' + (msg ? '<span class="m">' + msg + '</span>' : '');
-    out.appendChild(d);
+    d.className = 'row ' + state;
+    d.innerHTML = '<b>' + title + '</b>' + (msg ? '<div class="msg">' + msg + '</div>' : '');
+    log.appendChild(d);
     return d;
   }
-  var t0 = new Date().getTime();
-  function ms() { return (new Date().getTime() - t0) + ' мс'; }
 
-  row('ok', '1. Страница открылась', 'за ' + ms());
+  add('ok', '1. HTML загрузился', 'Страница открылась за ' + ms());
 
-  /* 2. Работает ли JavaScript — самая частая беда */
-  var jsOk = false;
   try {
     var n = 0;
-    var a = [1, 2, 3];
-    for (var i = 0; i < a.length; i++) { n = n + a[i]; }
-    jsOk = (n === 6);
-  } catch (e) { jsOk = false; }
-  row(jsOk ? 'ok' : 'bad', '2. JavaScript работает',
-      jsOk ? 'Проверка прошла' : 'НЕ РАБОТАЕТ — в этом и причина');
+    [1,2,3].forEach(function () { n++; });
+    add('ok', '2. JavaScript работает', 'Проверка прошла, прошло ' + ms());
+  } catch (e) {
+    add('bad', '2. JavaScript НЕ работает', e.message);
+  }
 
-  /* 3. Понимает ли браузер новый код (если нет, сайт молча сломается) */
-  var modern = [];
-  var t;
-  try { eval('(async function(){})'); modern.push('async: да'); } catch (e) { modern.push('async: НЕТ'); }
-  try { eval('const z=1'); modern.push('const: да'); } catch (e) { modern.push('const: НЕТ'); }
-  try { eval('(x=>x)'); modern.push('стрелки: да'); } catch (e) { modern.push('стрелки: НЕТ'); }
-  try { eval('for (const q of [1]) {}'); modern.push('for..of: да'); } catch (e) { modern.push('for..of: НЕТ'); }
-  var allModern = (modern.join(' ').indexOf('НЕТ') < 0);
-  row(allModern ? 'ok' : 'mid', '3. Браузер новый?', modern.join(' · '));
+  var checks = [
+    ['async', (function(){ try { eval('(async function(){})'); return true; } catch(e){ return false; } })()],
+    ['const', (function(){ try { eval('const a=1'); return true; } catch(e){ return false; } })()],
+    ['стрелки', (function(){ try { eval('(x=>x+1)'); return true; } catch(e){ return false; } })()],
+    ['AbortController', typeof AbortController === 'function']
+  ];
+  var allOk = checks.every(function (c) { return c[1]; });
+  add(allOk ? 'ok' : 'bad', '3. Браузер современный?',
+      checks.map(function (c) { return c[0] + ': ' + (c[1] ? 'да' : 'нет'); }).join(' · '));
 
-  /* 4. Есть ли интернет до сайта.
-     Проверяем обычным fetch, а не картинкой: картинка может не показаться
-     по разным причинам, и проверка врала бы. */
-  var net = row('mid', '4. Проверяем интернет', 'ждём...');
-  var x = new XMLHttpRequest();
-  x.open('GET', 'style.css?proverka=' + (new Date().getTime()), true);
-  x.onload = function () {
-    net.className = 'row ok';
-    net.innerHTML = '<b>4. Интернет есть</b><span class="m">файл с сайта пришёл, код ' + x.status + ', за ' + ms() + '</span>';
-  };
-  x.onerror = function () {
-    net.className = 'row bad';
-    net.innerHTML = '<b>4. Интернет НЕ работает</b><span class="m">файл с сайта не пришёл — браузер не может связаться с сайтом</span>';
-  };
-  x.send();
-  /* 5. Основной скрипт сайта — грузится ли он */
-  var s = document.createElement('script');
-  s.onload = function () { row('ok', '5. app.js загрузился', 'за ' + ms()); };
-  s.onerror = function () { row('bad', '5. app.js НЕ загрузился', 'главный файл сайта не пришёл'); };
-  s.src = 'app.js?proverka=' + (new Date().getTime());
+  if (document.fonts && document.fonts.load) {
+    var done = false;
+    setTimeout(function () {
+      if (done) return;
+      done = true;
+      add('wait', '4. Шрифты', 'Не пришли за 6 секунд. Это не мешает: '
+          + 'сайт показывает текст обычными буквами.');
+    }, 6000);
+    document.fonts.load('16px "PT Serif"').then(function () {
+      if (done) return;
+      done = true;
+      add('ok', '4. Шрифты загрузились', ms());
+    }).catch(function (e) {
+      if (done) return;
+      done = true;
+      add('bad', '4. Шрифты не загрузились', e.message);
+    });
+  } else {
+    add('wait', '4. Шрифты', 'Браузер не умеет показывать состояние шрифтов.');
+  }
 
-  /* Ловим ошибки скриптов — из-за них сайт может молча сломаться. */
-  window.onerror = function (msg, url, line) {
-    var r = document.querySelectorAll('#out .row');
-    var last = r[r.length - 1];
-    if (last && last.className.indexOf('bad') < 0) {
-      var e = document.createElement('div');
-      e.className = 'row bad';
-      e.innerHTML = '<b>Найдена ошибка в скрипте</b><span class="m">' + msg + ' (файл ' + String(url).split('/').pop() + ', строка ' + line + ')</span>';
-      out.appendChild(e);
-    }
-    return true;
+  var img = new Image();
+  img.onload = function () {
+    add('ok', '5. Интернет работает', 'Картинка с сервера сайта пришла за ' + ms());
   };
-  /* 5. Главный файл сайта — тот самый, который всё запускает.
-     Если он не загрузится, сайт будет пустым. Проверяем здесь же,
-     в этой же строке, чтобы результат не потерялся. */
-  var appRow = row('mid', '5. Главный файл сайта', 'проверяем...');
-  var sc = document.createElement('script');
-  sc.onload = function () {
-    appRow.className = 'row ok';
-    appRow.innerHTML = '<b>5. Главный файл загрузился</b><span class="m">за ' + ms() + ' — значит, сайт должен работать</span>';
+  img.onerror = function () {
+    add('bad', '5. Интернет НЕ работает', 'Даже картинка с этого же сайта не пришла. '
+        + 'Браузер не может связаться с сайтом.');
   };
-  sc.onerror = function () {
-    appRow.className = 'row bad';
-    appRow.innerHTML = '<b>5. Главный файл НЕ загрузился</b><span class="m">app.js не пришёл — вот и причина пустого экрана</span>';
-  };
-  sc.src = 'app.js?proverka=' + (new Date().getTime());
-  document.body.appendChild(sc);
+  img.src = 'favicon-test-' + Date.now() + '.gif';
 
-  row('mid', 'Подождите 10 секунд', 'потом сфотографируйте страницу целиком');
+  var dbRow = add('wait', '6. База данных', 'Проверяем…');
+  fetch('https://itbnvifyywrdgscsiqet.supabase.co/rest/v1/profiles?select=user_id&limit=1', {
+    headers: { apikey: 'sb_publishable_lZQNxBUE2ZJDPKVpfS0Now_-h_fKdYd' }
+  }).then(function (r) { return r.text(); }).then(function () {
+    dbRow.className = 'row ok';
+    dbRow.innerHTML = '<b>6. База отвечает</b><div class="msg">Ответ получен за '
+      + ms() + '. Сайт работает и без неё, это не причина зависания.</div>';
+  }).catch(function (e) {
+    dbRow.className = 'row bad';
+    dbRow.innerHTML = '<b>6. База НЕ отвечает</b><div class="msg">' + e.message
+      + '. Сайт работает и без неё, значит причина в другом.</div>';
+  });
+
+  setTimeout(function () {
+    add('ok', 'Проверка закончена', 'Скажите, какие строки зелёные, а какие красные.');
+  }, 7500);
 })();
 </script>
 </body>

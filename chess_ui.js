@@ -7,8 +7,13 @@ const UI = window.UI || (window.UI = {});
 
 /* спрятать все игровые блоки, кроме нужного */
 function hideAllGameAreas() {
+  /* frArea — раздел французского — тоже должен прятаться здесь.
+     Раньше его в списке не было, и после занятия французским он
+     оставался на экране поверх обычной задачи: бабушка видела
+     карточки слов вместо условия. frOpen вызывает эту функцию ДО того,
+     как показывает frArea, так что порядок не ломается. */
   var ids = ['answerArea', 'sudokuArea', 'minesArea', 'matchArea', 'chessArea',
-    'chessScore', 'chessBtns', 'chessStyles'];
+    'chessScore', 'chessBtns', 'chessStyles', 'frArea'];
   for (var i = 0; i < ids.length; i++) {
     var el = document.getElementById(ids[i]);
     if (el) el.hidden = true;
@@ -261,8 +266,19 @@ function renderChess() {
 /* Считаем размер на следующем кадре: сразу после вставки доски
    браузер ещё не посчитал высоту, и доска вышла бы маленькой. */
 function fitChessBoardLater() {
+  /* Подгоняем доску несколькими способами сразу, потому что один
+     из них может не сработать:
+     - requestAnimationFrame — срабатывает сразу после отрисовки;
+     - setTimeout — страховка, если кадр не придёт (бывает в
+       фоновых вкладках, на некоторых телефонах и в сторонних
+       просмотрщиках);
+     - и обычный вызов здесь же, на случай если доска уже готова.
+     Повторный вызов безвреден: fitChessBoard ничего не меняет,
+     если размер уже подходящий. */
   if (typeof requestAnimationFrame === 'function') requestAnimationFrame(fitChessBoard);
-  else setTimeout(fitChessBoard, 0);
+  setTimeout(fitChessBoard, 0);
+  setTimeout(fitChessBoard, 120);
+  fitChessBoard();
 }
 
 function fitChessBoard() {

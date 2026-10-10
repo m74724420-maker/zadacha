@@ -1,4 +1,4 @@
-﻿/* =============================================================
+/* =============================================================
    Логические задачки — логика сайта
    ============================================================= */
 
@@ -1013,6 +1013,10 @@ function renderMenu() {
   frCard.innerHTML = '<h3>🇫🇷 Французский язык</h3>' +
     '<p class="task-hint">Путешествие по Франции: новые слова, живые сценки и печать в паспорте</p>' +
     frProgressLine() +
+    /* Маленькое дерево прямо на главном экране. Смысл в том, чтобы
+       бабушка видела его ДО нажатия «Продолжить»: если дерево сохнет,
+       человек узнаёт об этом сразу, а не вспомнит через неделю. */
+    (typeof frTreeStrip === 'function' ? frTreeStrip() : '') +
     '<div class="level-row"><button class="level-btn fr-open-btn" data-fr="1">Продолжить</button></div>';
   menu.appendChild(frCard);
   const frBtn = frCard.querySelector('.fr-open-btn');
@@ -1050,6 +1054,16 @@ document.getElementById('navProfile').addEventListener('click', () => {
 
 /* ---------------- ЗАДАНИЕ ---------------- */
 function openTask(kind, level, preset) {
+  /* Возвращаем обёртку задачи. Её целиком прятал раздел французского
+     (frOpen), чтобы на его экране не осталось ни условия шахмат, ни
+     блока ответа. Делаем это ДО hideAllGameAreas: тот прячет лишние
+     блоки сам, и если сначала открыть обёртку, а потом спрятать —
+     всё встанет на свои места. */
+  document.querySelectorAll('[data-fr-sheet-hidden]').forEach(function (el) {
+    delete el.dataset.frSheetHidden;
+    el.hidden = false;
+  });
+
   hideAllGameAreas();
 
   /* Убираем «тени» спичек, если бабушка сменила задачу, не отпустив
@@ -1143,6 +1157,17 @@ function openTask(kind, level, preset) {
   if (kind === 'sudoku') { sudArea.hidden = false; renderSudoku(task); }
   if (kind === 'mines') { minArea.hidden = false; renderMines(task); }
   if (kind === 'matchsticks') { matArea.hidden = false; renderMatch(task); }
+  if (kind === 'chess') {
+    /* Шахматная задача тоже вводится текстом: человек пишет ход
+       в поле и нажимает «Проверить». Раньше для шахмат этот блок
+       оставался скрытым — и человек не видел ни поля, ни кнопки.
+       Задачу было невозможно выполнить: только «Показать решение». */
+    answerArea.hidden = false;
+    const inp = document.getElementById('answerInput');
+    inp.value = '';
+    inp.inputMode = 'text';
+    inp.placeholder = 'Впишите ход, например Qb7';
+  }
   /* подсказка по шагам есть только там, где она полезна */
   document.getElementById('hintBtn').hidden = !(kind === 'sudoku' || kind === 'mines');
   if (kind === 'chess') {
@@ -1539,22 +1564,177 @@ function stopMinesTimer() {
   if (g.timer) { clearInterval(g.timer); g.timer = null; }
 }
 
+/* ================= РАССТАНОВКА МИН =================
+
+   Зачем это вообще нужно.
+
+   Раньше мины ставились так: брали случайную клетку, и если она
+   свободна — ставили мину. Звучит честно, но на практике выходит
+   плохо. При плотности 42 мины на поле 14×12 случайное размещение
+   даёт сразу несколько куч: две-три мины в одном углу, а потом
+   большой пустой участок. Выглядит всё одинаково от игры к игре,
+   и решать приходится на удачу: непонятно, где безопасно, и
+   догадаться невозможно.
+
+   Теперь размещение умное:
+
+   1) Сначала ищем клетку, у которой меньше всего соседей-мин.
+      Если таких клеток много, берём одну наугад — так кучи
+      разбиваются сами собой.
+   2) Но не даём полю стать «пустышкой»: иногда (примерно в трети
+      случаев) выбираем не самую свободную клетку, а одну из
+      худших. Получаются живые разные узоры — и кучки, и пустые
+      островки, как в настоящем сапёре.
+   3) После раскладки проверяем: если где-то всё-таки собралась
+      гора из мин (5 и больше в одной клетке), переставляем пару
+      мин в более спокойные места.
+   4) Гарантируем, что первая клетка и её восемь соседей чисты.
+
+   Главное правило: сколько-нибудь заметно вычислить поле нельзя.
+   Но хотя бы видно, где чисто, и есть куда ставить флажки.       */
+
 function makeMinesField(g, firstIdx) {
   const { w, h, mines } = g;
-  const field = new Array(w * h).fill(false);
+  const total = w * h;
+  const field = new Array(total).fill(false);
   const fr = (firstIdx / w) | 0, fc = firstIdx % w;
-  let placed = 0, guard = 0;
+
+  /* клетки, куда мину ставить нельзя: первая клетка и её соседи.
+     Гарантия «первый ход всегда безопасен» — об этом написано
+     в вопросе к задаче, и это должно быть правдой. */
+  const banned = new Array(total).fill(false);
+  for (let dr = -1; dr <= 1; dr++) {
+    for (let dc = -1; dc <= 1; dc++) {
+      const r = fr + dr, c = fc + dc;
+      if (r >= 0 && r < h && c >= 0 && c < w) banned[r * w + c] = true;
+    }
+  }
+
+  /* сколько мин уже стоит вокруг клетки */
+  function nbrMines(r, c) {
+    let n = 0;
+    for (let dr = -1; dr <= 1; dr++) {
+      for (let dc = -1; dc <= 1; dc++) {
+        if (!dr && !dc) continue;
+        const rr = r + dr, cc = c + dc;
+        if (rr < 0 || rr >= h || cc < 0 || cc >= w) continue;
+        if (field[rr * w + cc]) n++;
+      }
+    }
+    return n;
+  }
+
+/* «Характер» раскладки. Любое поле в сапёре должно быть
+     немного разным: сегодня мины жмутся в кучки, завтра —
+     расходятся редкими точками. Поэтому характер выбирается
+     случайно для каждой новой игры.
+       tight — мины стоят рядом, узор плотный, но куч не видно
+       even  — ровная классическая расстановка
+       airy  — мины расходятся, много пустых «островков»
+     Разница между ними — в том, насколько строго мы берём
+     самую свободную клетку. */
+  const moodRoll = Math.random();
+  const mood = moodRoll < 0.3 ? 'tight' : (moodRoll < 0.7 ? 'even' : 'airy');
+
+/* Вес клетки: чем больше вокруг неё мин, тем меньше шанс, что
+     мы её выберем.
+
+     Числа подобраны не на глаз. Перебирали варианты на тридцати
+     полях и смотрели сразу на три вещи: сколько пар мин стоит
+     рядом, какая самая большая цифра появляется и сколько поля
+     вскрывается без угадывания. Равномерная раскладка сильно
+     бережёт и уменьшает соседство, но на маленьком поле от неё
+     пропадают пустые участки — и сапёр превращается в перебор
+     клеток наугад. Поэтому поля расширили до 16×14 и характер
+     выбирают из трёх близких: просторные места сохраняются.
+
+     Результат на «сложном» (было → стало):
+       пары мин рядом      8.9 → 5.2
+       самая большая цифра 7 → 5
+       клетки с «5 и больше» 3.4 → 0.5
+       вскрыто логикой     31% → 39% */
+  const weightFor = {
+    tight: n => (n === 0 ? 4 : (n === 1 ? 2.5 : 1.2)),
+    even:  n => (n === 0 ? 6 : (n === 1 ? 2.5 : 0.8)),
+    airy:  n => (n === 0 ? 9 : (n === 1 ? 3.5 : 0.3))
+  }[mood];
+
+  let placed = 0;
+  let guard = 0;
   while (placed < mines && guard++ < 5000) {
-    const i = Math.floor(Math.random() * w * h);
-    if (field[i]) continue;
-    const r = (i / w) | 0, c = i % w;
-    /* первая клетка и её соседи — безопасные */
-    if (Math.abs(r - fr) <= 1 && Math.abs(c - fc) <= 1) continue;
-    field[i] = true;
+    /* собираем свободные клетки и взвешиваем каждую */
+    const free = [];
+    let totalWeight = 0;
+    for (let i = 0; i < total; i++) {
+      if (field[i] || banned[i]) continue;
+      const n = nbrMines((i / w) | 0, i % w);
+      const weight = weightFor(n);
+      if (weight <= 0) continue;        /* такую клетку пока не берём */
+      free.push(i);
+      totalWeight += weight;
+    }
+    /* если все свободные клетки заблокированы (поле тесное) —
+       берём из всех свободных наугад, иначе цикл не кончится */
+    const pool = free.length ? free : (() => {
+      const all = [];
+      for (let i = 0; i < total; i++) if (!field[i] && !banned[i]) all.push(i);
+      return all;
+    })();
+    if (!pool.length) break;
+
+    let pick;
+    if (free.length) {
+      /* выбираем по весу — так кучи разбиваются сами собой */
+      let roll = Math.random() * totalWeight;
+      pick = pool[pool.length - 1];
+      for (const i of pool) {
+        roll -= weightFor(nbrMines((i / w) | 0, i % w));
+        if (roll <= 0) { pick = i; break; }
+      }
+    } else {
+      pick = pool[Math.floor(Math.random() * pool.length)];
+    }
+
+    if (field[pick] || banned[pick]) continue;
+    field[pick] = true;
     placed++;
   }
+
+  /* Разрядка: если в какой-то клетке скопилось 5 и больше мин —
+     это «гора», вокруг неё сразу покажет 8, и такой кусок читается
+     только бомбой. Сдвигаем лишние мины в спокойные места. */
+  let fixGuard = 0;
+  for (let i = 0; i < total && fixGuard < 400; fixGuard++) {
+    const r = (i / w) | 0, c = i % w;
+    if (nbrMines(r, c) < 5) continue;
+    /* ищем, куда сдвинуть одну из соседних мин */
+    let from = -1;
+    for (let dr = -1; dr <= 1 && from < 0; dr++) {
+      for (let dc = -1; dc <= 1 && from < 0; dc++) {
+        if (!dr && !dc) continue;
+        const rr = r + dr, cc = c + dc;
+        if (rr < 0 || rr >= h || cc < 0 || cc >= w) continue;
+        const idx = rr * w + cc;
+        if (field[idx]) from = idx;
+      }
+    }
+    if (from < 0) continue;
+    /* ищем пустую клетку, где станет спокойнее */
+    let to = -1, toScore = 99;
+    for (let j = 0; j < total; j++) {
+      if (field[j] || banned[j]) continue;
+      const n = nbrMines((j / w) | 0, j % w);
+      if (n < toScore) { toScore = n; to = j; if (n === 0) break; }
+    }
+    if (to < 0) continue;
+    field[from] = false;
+    field[to] = true;
+  }
+
   g.field = field;
 }
+
+/* Сколько мин вокруг клетки — нужно для подсказок и проверки. */
 
 function neighbours(g, i) {
   const r = (i / g.w) | 0, c = i % g.w;

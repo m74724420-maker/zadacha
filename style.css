@@ -2033,17 +2033,473 @@ body {
   opacity: .8;
   margin-top: 2px;
 }
+/* Значок динамика. Он не нажимается отдельно — нажимается вся строка,
+   — но делаем его крупным и заметным: пожилому человеку нужно видеть,
+   что строка произносима, иначе он её не тронет. */
 .fr-gramrow-ic {
   position: absolute;
-  right: 14px;
+  right: 8px;
   top: 50%;
   transform: translateY(-50%);
-  font-size: 1.3rem;
-  opacity: .55;
+  width: 48px;
+  height: 48px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 10px;
+  background: #e3f0fb;
+  font-size: 1.4rem;
+  opacity: .85;
 }
 
 @media (max-width: 34rem) {
   .fr-gramrow-fr { font-size: 1.1rem; }
-  .fr-gramrow { padding: 12px 40px 12px 12px; }
+  /* 64px справа — место под значок 48px + отступы, иначе он налезает на текст */
+  .fr-gramrow { padding: 12px 68px 12px 12px; }
+  .fr-gramrow-ic { right: 6px; width: 52px; height: 52px; font-size: 1.5rem; }
   .fr-idea { font-size: 1.08rem; }
+}
+
+/* заголовки групп в грамматике */
+.fr-gram-head {
+  font-size: 1.25rem;
+  margin: 6px 0 2px;
+  padding: 0 2px;
+}
+.fr-gram-note {
+  font-size: .98rem;
+  opacity: .75;
+  margin: 0 2px 10px;
+  line-height: 1.4;
+}
+
+/* Карточка ролика на телефоне. Название длинное («10 обязательных
+   глаголов для новичков»), и в узкой колонке оно ложилось в пять
+   строк — карточка вырастала до 308 пикселей, больше половины
+   экрана. Уменьшаем шрифт и круглую кнопку: карточка становится
+   ниже, а читать всё так же удобно. */
+@media (max-width: 34rem) {
+  .fr-video-card {
+    gap: 10px;
+    padding: 12px;
+  }
+  .fr-video-play {
+    font-size: 1.25rem;
+    width: 40px;
+    height: 40px;
+    flex: 0 0 40px;
+  }
+  .fr-video-text b {
+    font-size: 1.1rem;
+    line-height: 1.25;
+  }
+  .fr-video-text span {
+    font-size: .95rem;
+    line-height: 1.25;
+  }
+}
+
+/* Значок длительности на карточке ролика. Ролики длинные (до 54 минут),
+   а заниматься мы договорились по десять. Человек должен заранее
+   видеть, что «по части» — это нормально, а не «не досмотрел». */
+.fr-video-dur {
+  display: inline-block;
+  margin-top: 6px;
+  padding: 3px 10px;
+  border-radius: 999px;
+  background: #eee6d5;
+  color: #5d4a2a;
+  font-size: .9rem;
+}
+.fr-video-dur.long {
+  background: #ffe6c2;
+  color: #7a4a00;
+}
+
+/* та же подсказка на экране самого ролика */
+.fr-vid-dur {
+  display: inline-block;
+  margin: 4px 0 0;
+  padding: 8px 14px;
+  border-radius: 10px;
+  background: #eee6d5;
+  color: #5d4a2a;
+  font-size: 1rem;
+}
+.fr-vid-dur.long {
+  background: #ffe6c2;
+  color: #7a4a00;
+}
+
+/* Текст ролика внутри карточки — flex-пункт. По умолчанию flex-пункт
+   не сжимается уже содержимого, и длинный значок «⏱ 54 мин · по
+   частям» растягивал карточку до 443 пикселей при ширине экрана
+   375: весь список уезжал вбок. min-width: 0 разрешает сжаться,
+   а перенос по словам — не разрывать строку посередине. */
+.fr-video-text {
+  flex: 1 1 auto;
+  min-width: 0;
+}
+.fr-video-dur {
+  display: inline-block;
+  max-width: 100%;
+  overflow-wrap: break-word;
+  word-break: normal;
+}
+/* и на телефоне — значок не должен вылезать за карточку */
+@media (max-width: 34rem) {
+  .fr-video-dur {
+    max-width: 100%;
+    padding: 3px 8px;
+    font-size: .85rem;
+    white-space: normal;
+  }
+}
+
+/* ---------- ПОДРОБНАЯ ГРАММАТИКА ---------- */
+
+/* Правило по шагам */
+.fr-rules {
+  margin: 0 0 16px;
+  padding-left: 26px;
+}
+.fr-rules li {
+  font-size: 1.08rem;
+  line-height: 1.5;
+  margin-bottom: 12px;
+}
+.fr-rules li::marker {
+  color: #a9738c;
+  font-weight: 700;
+}
+
+/* Живой пример внутри текста: касаешься — говорит */
+.fr-say {
+  display: inline-block;
+  padding: 1px 7px;
+  margin: 0 2px;
+  border-radius: 7px;
+  background: #e4f0fa;
+  color: #14395c;
+  font-weight: 600;
+  cursor: pointer;
+}
+.fr-say:active { background: #cfe4f5; }
+
+/* Исключения — их надо прочитать обязательно, выделяем */
+.fr-exc {
+  background: #fff3d9;
+  border-left: 6px solid #e0a83c;
+  border-radius: 10px;
+  padding: 12px 16px;
+  margin-bottom: 16px;
+}
+.fr-exc p {
+  margin: 0 0 10px;
+  font-size: 1.06rem;
+  line-height: 1.5;
+}
+.fr-exc p:last-child { margin-bottom: 0; }
+
+/* Ошибки: как неправильно и как правильно */
+.fr-mistakes { margin-bottom: 16px; }
+.fr-mistake {
+  border: 2px solid #ecd9b6;
+  border-radius: 12px;
+  padding: 10px 12px;
+  margin-bottom: 10px;
+  background: #fffdf6;
+}
+.fr-mistake-bad,
+.fr-mistake-good {
+  display: block;
+  width: 100%;
+  text-align: left;
+  font: inherit;
+  font-size: 1.08rem;
+  padding: 9px 12px;
+  border-radius: 9px;
+  margin-bottom: 6px;
+  cursor: pointer;
+}
+.fr-mistake-bad {
+  background: #fde8e8;
+  color: #8a1f1f;
+  text-decoration: line-through;
+}
+.fr-mistake-good {
+  background: #e2f2e6;
+  color: #1e5a2e;
+  font-weight: 600;
+}
+.fr-mistake-bad:active { background: #f8d5d5; }
+.fr-mistake-good:active { background: #cfe8d6; }
+.fr-mistake-x { margin-right: 8px; font-weight: 700; }
+.fr-mistake-v { margin-right: 8px; font-weight: 700; }
+.fr-mistake-why {
+  display: block;
+  font-size: .98rem;
+  opacity: .8;
+  line-height: 1.4;
+}
+
+@media (max-width: 34rem) {
+  .fr-rules { padding-left: 22px; }
+  .fr-rules li { font-size: 1.04rem; margin-bottom: 10px; }
+  .fr-exc { padding: 11px 13px; }
+  .fr-exc p { font-size: 1.02rem; }
+  .fr-mistake-bad,
+  .fr-mistake-good { font-size: 1.02rem; padding: 9px 11px; }
+}
+
+/* ---------- ДЕРЕВО ЗАНЯТИЙ ---------- */
+.fr-tree {
+  position: relative;
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  background: linear-gradient(180deg, #f4f9f2 0%, #eaf3e4 100%);
+  border: 2px solid #c6dcb8;
+  border-radius: 16px;
+  padding: 12px 14px;
+  margin-bottom: 14px;
+}
+.fr-tree-pic {
+  flex: 0 0 96px;
+  width: 96px;
+  height: 106px;
+}
+.fr-tree-svg {
+  width: 100%;
+  height: 100%;
+  display: block;
+}
+.fr-tree-soil { fill: #b79a76; }
+.fr-tree-seed { fill: #8c6a44; }
+.fr-tree-trunk,
+.fr-tree-branch {
+  fill: #8a6236;
+  stroke: #7a5530;
+  stroke-width: 1.5;
+  stroke-linecap: round;
+}
+.fr-tree-branch { fill: none; }
+
+/* подписи справа */
+.fr-tree-info { flex: 1 1 auto; min-width: 0; }
+.fr-tree-name {
+  font-size: 1.15rem;
+  font-weight: 700;
+  margin-bottom: 4px;
+}
+.fr-tree-sub {
+  font-size: 1rem;
+  line-height: 1.4;
+  opacity: .85;
+}
+.fr-tree-next {
+  margin-top: 6px;
+  font-size: .95rem;
+  color: #3c6b28;
+  background: #e4f2da;
+  border-radius: 999px;
+  padding: 4px 12px;
+  display: inline-block;
+}
+
+/* состояния */
+.fr-tree-watered {
+  border-color: #6fae4a;
+  background: linear-gradient(180deg, #f2fbe9 0%, #e2f4d5 100%);
+}
+.fr-tree-watered .fr-tree-name { color: #2f6b1c; }
+.fr-tree-ok { border-color: #b9cf9f; }
+.fr-tree-dry {
+  border-color: #d8c07a;
+  background: linear-gradient(180deg, #fdf8ec 0%, #f6efd8 100%);
+}
+.fr-tree-dry .fr-tree-name { color: #7a5c14; }
+.fr-tree-dead {
+  border-color: #c9a898;
+  background: linear-gradient(180deg, #f8f1ec 0%, #efe3d9 100%);
+}
+.fr-tree-dead .fr-tree-name { color: #7c4a32; }
+
+/* капля воды в день занятия */
+.fr-tree-watered .fr-tree-pic::after {
+  content: '💧';
+  position: absolute;
+  top: 6px;
+  right: 10px;
+  font-size: 1.2rem;
+}
+
+@media (max-width: 34rem) {
+  .fr-tree { gap: 10px; padding: 10px 11px; }
+  .fr-tree-pic { flex: 0 0 82px; width: 82px; height: 92px; }
+  .fr-tree-name { font-size: 1.08rem; }
+  .fr-tree-sub { font-size: .95rem; }
+  .fr-tree-next { font-size: .9rem; }
+}
+
+/* ---------- ДЕРЕВО НА ГЛАВНОМ ЭКРАНЕ ---------- */
+.fr-mini {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  border-radius: 12px;
+  padding: 8px 12px;
+  margin: 8px 0 10px;
+  border: 2px solid #d5e2cb;
+  background: #f2f8ef;
+}
+.fr-mini-pic {
+  flex: 0 0 40px;
+  width: 40px;
+  height: 44px;
+}
+.fr-mini-svg {
+  width: 100%;
+  height: 100%;
+  display: block;
+}
+.fr-mini-text {
+  flex: 1 1 auto;
+  min-width: 0;
+  font-size: .98rem;
+  line-height: 1.35;
+  color: #3d4b33;
+}
+.fr-mini-good {
+  border-color: #6fae4a;
+  background: #eaf6e0;
+}
+.fr-mini-good .fr-mini-text { color: #2f6b1c; font-weight: 600; }
+.fr-mini-warn {
+  border-color: #d8c07a;
+  background: #fdf7e8;
+}
+.fr-mini-warn .fr-mini-text { color: #7a5c14; }
+.fr-mini-bad {
+  border-color: #d0a795;
+  background: #f9efea;
+}
+.fr-mini-bad .fr-mini-text { color: #7c4a32; }
+
+@media (max-width: 34rem) {
+  .fr-mini { gap: 8px; padding: 7px 10px; }
+  .fr-mini-pic { flex: 0 0 34px; width: 34px; height: 38px; }
+  .fr-mini-text { font-size: .92rem; }
+}
+
+/* Заголовок каждой десятки уроков: их 66, и без разбивки список
+   превращается в неудобную полосу. */
+.fr-videos-sub {
+  font-size: 1.05rem;
+  font-weight: 700;
+  margin: 16px 2px 8px;
+  color: #5d4a2a;
+}
+.fr-videos-sub:first-of-type { margin-top: 4px; }
+@media (max-width: 34rem) {
+  .fr-videos-sub { font-size: 1rem; margin: 14px 2px 7px; }
+}
+
+/* ---------- НОВЫЕ РАЗДЕЛЫ: разговорник, словари, практика ---------- */
+
+/* варианты ответа в практике и числах */
+.fr-prac-opts {
+  display: block;
+  margin-bottom: 12px;
+}
+.fr-prac-opt {
+  display: block;
+  width: 100%;
+  text-align: left;
+  font-size: 1.15rem;
+  padding: 16px 18px;
+  min-height: 62px;
+  margin-bottom: 10px;
+  background: #fff;
+  border: 2px solid #cbd9ea;
+  border-radius: 12px;
+}
+.fr-prac-opt:active { background: #eaf2fa; }
+.fr-prac-opt.prac-ok {
+  background: #e2f2e6;
+  border-color: #6aa87a;
+  color: #1e5a2e;
+}
+.fr-prac-opt.prac-no {
+  background: #fde8e8;
+  border-color: #c98a8a;
+  color: #8a1f1f;
+}
+
+.fr-prac-verdict {
+  min-height: 1.2em;
+  margin: 4px 0 12px;
+  font-size: 1.08rem;
+  line-height: 1.4;
+}
+.fr-prac-verdict.good { color: #1e5a2e; }
+.fr-prac-verdict.bad { color: #7c4a32; }
+
+/* кнопка «как это по-французски» */
+.fr-say {
+  display: block;
+  width: 100%;
+  margin-bottom: 12px;
+}
+
+/* поиск в словарике */
+.fr-search {
+  display: block;
+  width: 100%;
+  font: inherit;
+  font-size: 1.1rem;
+  padding: 14px 16px;
+  min-height: 56px;
+  border: 2px solid #cbd9ea;
+  border-radius: 12px;
+  background: #fff;
+  margin-bottom: 8px;
+}
+.fr-search:focus {
+  outline: none;
+  border-color: #7fa8d8;
+}
+
+/* уже знаю — слово с галочкой */
+.fr-gramrow.known {
+  background: #f0f7ea;
+  border-color: #bcd7a6;
+}
+
+/* дневник достижений */
+.fr-achieve { margin-bottom: 14px; }
+.fr-ach {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  background: linear-gradient(180deg, #fffdf4 0%, #fdf6e4 100%);
+  border: 2px solid #e6d09a;
+  border-radius: 12px;
+  padding: 12px 14px;
+  margin-bottom: 8px;
+}
+.fr-ach-next {
+  background: #f7f9fc;
+  border-color: #cdd9e8;
+}
+.fr-ach-e { font-size: 2rem; flex: 0 0 auto; }
+.fr-ach-t { flex: 1 1 auto; min-width: 0; }
+.fr-ach-t b { display: block; font-size: 1.1rem; }
+.fr-ach-t span { font-size: .98rem; opacity: .8; line-height: 1.35; }
+
+@media (max-width: 34rem) {
+  .fr-prac-opt { font-size: 1.08rem; padding: 14px 15px; min-height: 58px; }
+  .fr-ach { gap: 10px; padding: 10px 12px; }
+  .fr-ach-e { font-size: 1.7rem; }
+  .fr-ach-t b { font-size: 1.05rem; }
 }
